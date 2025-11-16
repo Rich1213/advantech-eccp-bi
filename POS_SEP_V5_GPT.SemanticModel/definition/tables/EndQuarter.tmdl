@@ -1,0 +1,28 @@
+table EndQuarter
+	lineageTag: 4b811955-c97b-452d-b998-30a444a38748
+
+	column YearQuarter
+		lineageTag: 9907f3bd-fe3b-445e-8d58-93d455c32fa2
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [YearQuarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterKey
+		formatString: 0
+		lineageTag: 54eaa786-5993-4f27-9ec8-d5cad3d292f0
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: [QuarterKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition EndQuarter = calculated
+		mode: import
+		source =
+				
+				SELECTCOLUMNS ( DIM_MONTH, "YearQuarter", DIM_MONTH[YearQuarter], "QuarterKey", DIM_MONTH[QuarterKey] )
+
+	annotation PBI_Id = 1e16498b9afb4df48814ec2fa4c0153f
+

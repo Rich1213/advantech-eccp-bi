@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "abbc534e4dd7b3c016a5",
+  "position": {
+    "x": 640,
+    "y": 392,
+    "z": 3000,
+    "height": 312,
+    "width": 488,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "donutChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_clean"
+                    }
+                  },
+                  "Property": "ProductLine"
+                }
+              },
+              "queryRef": "fact_clean.ProductLine",
+              "nativeQueryRef": "ProductLine",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "RFM Sales TY 12M"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.RFM Sales TY 12M",
+              "nativeQueryRef": "RFM Sales TY 12M"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "customer_monthlyrfm"
+                  }
+                },
+                "Property": "RFM Sales TY 12M"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

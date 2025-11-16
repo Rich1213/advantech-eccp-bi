@@ -1,0 +1,36 @@
+table RollingEnd
+	lineageTag: a3989361-8d70-4a47-8af2-5738cd131194
+
+	column Idx
+		formatString: 0
+		lineageTag: c284cbd0-de28-4b1d-8c68-31ce3e81044c
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Idx]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Label
+		lineageTag: 0768187d-0c72-4ed8-a2b2-44032bb792a8
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Label]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition RollingEnd = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Idx",   INTEGER,
+				    "Label", STRING,
+				    {
+				        { 0, "Current"   },
+				        { 1, "Current-1" },
+				        { 2, "Current-2" }
+				    }
+				)
+
+	annotation PBI_Id = fc1034eadcdf4d579e359a5c430eab2b
+

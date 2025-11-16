@@ -1,0 +1,29 @@
+table DIM_ProductLine
+	lineageTag: e0de4417-a9d2-4f63-87e8-72085cdccfd6
+
+	column ProductLine
+		dataType: string
+		lineageTag: 5ab6dad7-6c6c-4acc-9932-24f4189b2fea
+		summarizeBy: none
+		sourceColumn: ProductLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductGroupRoll
+		dataType: string
+		lineageTag: d7f9f000-44cd-4d0c-ba13-5e12689a956c
+		summarizeBy: none
+		sourceColumn: ProductGroupRoll
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DIM_ProductLine = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\agg\DIM_ProductLine.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,34 @@
+table PeriodEnd
+	lineageTag: 6336af1e-f8ff-41aa-9cf0-067c1f18f29d
+
+	column MonthKey
+		formatString: 0
+		lineageTag: 2046a0b7-1f16-41e0-b175-7126ff3c38d6
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: DimPeriod[MonthKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		lineageTag: 73d2e1cc-61db-4acc-86aa-e25f973df1fe
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DimPeriod[YearMonth]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearQuarter
+		lineageTag: ff685bcd-9844-4a9b-a129-4d845b710285
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DimPeriod[YearQuarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PeriodEnd = calculated
+		mode: import
+		source = DimPeriod
+
+	annotation PBI_Id = 80219c0ff3ef48aa8b2a134bb04f3ca4
+

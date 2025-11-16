@@ -1,0 +1,103 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "a954df4173093eaacd16",
+  "position": {
+    "x": 47.702008024820536,
+    "y": 129.68983431748083,
+    "z": 0,
+    "height": 436.02616710187522,
+    "width": 408.44844371252583
+  },
+  "visual": {
+    "visualType": "lineClusteredColumnComboChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_MONTH"
+                    }
+                  },
+                  "Property": "Rolling12M_Label"
+                }
+              },
+              "queryRef": "DIM_MONTH.Rolling12M_Label",
+              "nativeQueryRef": "Rolling12M_Label",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "GM (Rolling12M)"
+                }
+              },
+              "queryRef": "0  MEASURES.GM (Rolling12M)",
+              "nativeQueryRef": "GM (Rolling12M)",
+              "format": "#,0"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "DIM_MONTH"
+                  }
+                },
+                "Property": "Rolling12M_Label"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "labels": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0  MEASURES.GM (Rolling12M)"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

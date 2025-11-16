@@ -1,0 +1,143 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "cc70e521f177fbb9bef3",
+  "position": {
+    "x": 584,
+    "y": 512,
+    "z": 5000,
+    "height": 200,
+    "width": 632,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "CustomerNK"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.CustomerNK",
+              "nativeQueryRef": "CustomerNK"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "RFM Sales TY 12M"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.RFM Sales TY 12M",
+              "nativeQueryRef": "RFM Sales TY 12M"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "RFM Sales Diff 12M"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.RFM Sales Diff 12M",
+              "nativeQueryRef": "RFM Sales Diff 12M",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "RFM_NameZh"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.RFM_NameZh",
+              "nativeQueryRef": "RFM_NameZh"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "customer_monthlyrfm"
+                  }
+                },
+                "Property": "RFM Sales TY 12M"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "values": [
+        {
+          "properties": {
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "155.32483491849482D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "customer_monthlyrfm.RFM_NameZh"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "234.72696678402804D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "customer_monthlyrfm.CustomerNK"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

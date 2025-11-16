@@ -1,0 +1,58 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "40a670f0d379ab765007",
+  "position": {
+    "x": 541.1196535315579,
+    "y": 24.596347887798089,
+    "z": 1000,
+    "height": 149.06877507756417,
+    "width": 297.39220627974055,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "advancedSlicerVisual",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "product_quadrant_qtr"
+                    }
+                  },
+                  "Property": "ProductLine"
+                }
+              },
+              "queryRef": "product_quadrant_qtr.ProductLine",
+              "nativeQueryRef": "ProductLine"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "general": [
+        {
+          "properties": {}
+        }
+      ],
+      "actionState": [
+        {
+          "properties": {
+            "isImageAdvanced": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

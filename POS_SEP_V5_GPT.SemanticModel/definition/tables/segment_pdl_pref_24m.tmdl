@@ -1,0 +1,57 @@
+table segment_pdl_pref_24m
+	lineageTag: a9c91dde-ec35-4e5d-9796-864e8eaeb992
+
+	column PurchaseSegment
+		dataType: string
+		lineageTag: 160dc898-2d6d-4114-a938-9e15acb61103
+		summarizeBy: none
+		sourceColumn: PurchaseSegment
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductLine
+		dataType: string
+		lineageTag: 75d7bf86-c29a-4b50-869a-748396d4b94d
+		summarizeBy: none
+		sourceColumn: ProductLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column Customers
+		dataType: int64
+		formatString: 0
+		lineageTag: de9faf37-d13a-496e-b8f1-8c22c0ffd660
+		summarizeBy: sum
+		sourceColumn: Customers
+
+		annotation SummarizationSetBy = Automatic
+
+	column Orders
+		dataType: int64
+		formatString: 0
+		lineageTag: c67813bc-c7c1-459b-b55e-f9650cf59622
+		summarizeBy: sum
+		sourceColumn: Orders
+
+		annotation SummarizationSetBy = Automatic
+
+	column GM
+		dataType: double
+		lineageTag: 552fa376-9e29-459e-90a4-e1bf3516fc46
+		summarizeBy: sum
+		sourceColumn: GM
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition segment_pdl_pref_24m = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\agg\segment_pdl_pref_24m.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+

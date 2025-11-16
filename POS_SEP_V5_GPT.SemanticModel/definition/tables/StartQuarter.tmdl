@@ -1,0 +1,28 @@
+table StartQuarter
+	lineageTag: fa3d48f0-490e-41c0-93cb-9d289cc8b19a
+
+	column YearQuarter
+		lineageTag: 057761f3-e95b-461f-b37e-44c6b2ec7e2e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [YearQuarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterKey
+		formatString: 0
+		lineageTag: 5f9f6f68-fd39-47c0-b278-49d0701cfde1
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: [QuarterKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition StartQuarter = calculated
+		mode: import
+		source =
+				
+				SELECTCOLUMNS ( DIM_MONTH, "YearQuarter", DIM_MONTH[YearQuarter], "QuarterKey", DIM_MONTH[QuarterKey] )
+
+	annotation PBI_Id = c1c7872f7e9e4bb69df54ffe1706d718
+

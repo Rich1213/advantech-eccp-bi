@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "1b5c683f923e255e2ea5",
+  "position": {
+    "x": 20.227636158404664,
+    "y": 0,
+    "z": 1000,
+    "height": 106.91750540871037,
+    "width": 379.26817797008749,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "advancedSlicerVisual",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_SALES_MONTH"
+                    }
+                  },
+                  "Property": "GeoGroup"
+                }
+              },
+              "queryRef": "fact_clean_monthed.GeoGroup",
+              "nativeQueryRef": "GeoGroup"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "general": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

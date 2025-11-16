@@ -1,0 +1,30 @@
+table DIM_GeoGroup
+	lineageTag: 1f3742e5-6da9-4152-8804-fb810406c11d
+
+	column GeoGroup
+		lineageTag: a0cb5136-7384-44e9-9aed-99f4d8c260cd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [GeoGroup]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DIM_GeoGroup = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "GeoGroup", STRING,
+				    {
+				        {"ASIAPAC"},
+				        {"EMEA"},
+				        {"Greater China"},
+				        {"NAM"},
+				        {"LATAM"},
+				        {"AFRICA"},
+				        {"UNKNOWN"}
+				    }
+				)
+
+	annotation PBI_Id = 1eb519cc612f4e498b42aaa1ce61bb58
+

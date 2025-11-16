@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "260a97263c26de343e4e",
+  "position": {
+    "x": 457.85714285714289,
+    "y": 600,
+    "z": 7000,
+    "height": 120.00000000000001,
+    "width": 391.42857142857144,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "advancedSlicerVisual",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_SALES_MONTH"
+                    }
+                  },
+                  "Property": "CustomerSegment"
+                }
+              },
+              "queryRef": "fact_clean_monthed.CustomerSegment",
+              "nativeQueryRef": "CustomerSegment"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "general": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

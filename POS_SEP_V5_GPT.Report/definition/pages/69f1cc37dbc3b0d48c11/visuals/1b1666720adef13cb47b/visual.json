@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "1b1666720adef13cb47b",
+  "position": {
+    "x": 146.65036214843383,
+    "y": 244.17646505502773,
+    "z": 2000,
+    "height": 174.82456965478318,
+    "width": 300.52488006772643
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "PDL Count TTM - Median"
+                }
+              },
+              "queryRef": "0  MEASURES.PDL Count TTM - Median",
+              "nativeQueryRef": "PDL Count TTM - Median"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "0  MEASURES"
+                  }
+                },
+                "Property": "PDL Count TTM - Median"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

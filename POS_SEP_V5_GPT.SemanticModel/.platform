@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "POS_SEP_V5_GPT"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "16ba0954-3756-4ff6-b455-43a7819f3cd4"
+  }
+}

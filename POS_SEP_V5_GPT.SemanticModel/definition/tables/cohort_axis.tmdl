@@ -1,0 +1,18 @@
+table cohort_axis
+	lineageTag: c113cfaa-8f57-4834-bfd0-c1e0e74a2846
+
+	column Value
+		formatString: 0
+		lineageTag: adf271ac-cad5-46f0-80a7-5ec859f1b437
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition cohort_axis = calculated
+		mode: import
+		source = GENERATESERIES(0,24,1)   -- 只有一欄 Value
+
+	annotation PBI_Id = 84656934c1b94608b817eafeda68c604
+

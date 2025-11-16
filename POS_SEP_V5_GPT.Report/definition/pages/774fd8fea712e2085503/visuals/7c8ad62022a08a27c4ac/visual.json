@@ -1,0 +1,128 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "7c8ad62022a08a27c4ac",
+  "position": {
+    "x": 24,
+    "y": 64,
+    "z": 0,
+    "height": 264,
+    "width": 912.00000000000011,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sales_m_pdl"
+                    }
+                  },
+                  "Property": "CustomerNK"
+                }
+              },
+              "queryRef": "sales_m_pdl.CustomerNK",
+              "nativeQueryRef": "CustomerNK"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "PDL Count (per customer)"
+                }
+              },
+              "queryRef": "0  MEASURES.PDL Count (per customer)",
+              "nativeQueryRef": "PDL Count (per customer)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "PDL Count (last 24M, per customer)"
+                }
+              },
+              "queryRef": "0  MEASURES.PDL Count (last 24M, per customer)",
+              "nativeQueryRef": "PDL Count (last 24M, per customer)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "PDL Count (since first, per customer)"
+                }
+              },
+              "queryRef": "0  MEASURES.PDL Count (since first, per customer)",
+              "nativeQueryRef": "PDL Count (since first, per customer)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "0  MEASURES"
+                  }
+                },
+                "Property": "PDL Count (since first, per customer)"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "total": [
+        {
+          "properties": {
+            "totals": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "386.28571220968854D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "sales_m_pdl.CustomerNK"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

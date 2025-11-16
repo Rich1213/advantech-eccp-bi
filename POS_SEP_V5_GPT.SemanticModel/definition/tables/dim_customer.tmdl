@@ -1,0 +1,101 @@
+table dim_customer
+	lineageTag: dd12c4ea-5cd0-48b9-b668-f38ca27d90c0
+
+	column CustomerNK
+		dataType: string
+		lineageTag: 04b5ae88-cef7-4c65-b7b5-be9b4aadc11d
+		summarizeBy: none
+		sourceColumn: CustomerNK
+
+		annotation SummarizationSetBy = Automatic
+
+	column Country
+		dataType: string
+		lineageTag: 61e10da6-2a6d-4c5e-8541-ffc42e3e1341
+		summarizeBy: none
+		sourceColumn: Country
+
+		annotation SummarizationSetBy = Automatic
+
+	column ISO2
+		dataType: string
+		lineageTag: 5af7a8b0-818a-4cdf-b6b0-33f86d8df065
+		summarizeBy: none
+		sourceColumn: ISO2
+
+		annotation SummarizationSetBy = Automatic
+
+	column GeoSubRegion
+		dataType: string
+		lineageTag: 1f3e5c63-34f0-4f79-a52c-a94f5f869c97
+		summarizeBy: none
+		sourceColumn: GeoSubRegion
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 07d674db-61f8-45b4-b1d6-34498a6ac454
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column GeoGroup
+		dataType: string
+		lineageTag: 87d67044-2786-42c6-b345-be060246df9e
+		summarizeBy: none
+		sourceColumn: GeoGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustCty
+		dataType: string
+		lineageTag: 08f7a3fa-9364-4e1c-a913-ac1f0af3472c
+		summarizeBy: none
+		sourceColumn: CustCty
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustSt
+		dataType: string
+		lineageTag: 0085c7c5-d824-4cc5-a6b8-a582dc3dbdaa
+		summarizeBy: none
+		sourceColumn: CustSt
+
+		annotation SummarizationSetBy = Automatic
+
+	column PostalCode
+		dataType: string
+		lineageTag: 85282176-758a-4174-a16e-03ffcaf5ba4d
+		summarizeBy: none
+		sourceColumn: PostalCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column Location
+		dataType: string
+		lineageTag: b3ae5a12-60d0-4f20-8b5d-3ef9a3e5f580
+		summarizeBy: none
+		sourceColumn: Location
+
+		annotation SummarizationSetBy = Automatic
+
+	column Channel
+		dataType: string
+		lineageTag: ab208cd0-06f0-4692-b7fa-886ed8b780d0
+		summarizeBy: none
+		sourceColumn: Channel
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_customer = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\dim_customer.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+

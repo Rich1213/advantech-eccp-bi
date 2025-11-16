@@ -1,0 +1,302 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "ec3fea06acc9d96b22a8",
+  "position": {
+    "x": 407.737320795437,
+    "y": 19.889625404655462,
+    "z": 1000,
+    "height": 326.75813164791117,
+    "width": 521.3923231077539,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "scatterChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "CustomerNK"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.CustomerNK",
+              "nativeQueryRef": "CustomerNK",
+              "active": true
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "DistName"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.DistName",
+              "nativeQueryRef": "DistName",
+              "active": false
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "GeoGroup"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.GeoGroup",
+              "nativeQueryRef": "GeoGroup",
+              "active": false
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "CustomerSegment"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.CustomerSegment",
+              "nativeQueryRef": "CustomerSegment"
+            }
+          ]
+        },
+        "Size": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "customer_monthlyrfm"
+                        }
+                      },
+                      "Property": "AnnualValue"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(customer_monthlyrfm.AnnualValue)",
+              "nativeQueryRef": "AnnualValue 的總和",
+              "format": "#,0"
+            }
+          ]
+        },
+        "X": {
+          "projections": [
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "customer_monthlyrfm"
+                        }
+                      },
+                      "Property": "AnnualValue"
+                    }
+                  },
+                  "Function": 1
+                }
+              },
+              "queryRef": "customer_monthlyrfm.AnnualValue",
+              "nativeQueryRef": "AnnualValue 的平均",
+              "active": true,
+              "format": "#,0"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "Repurchase Stability %"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.Repurchase Stability %",
+              "nativeQueryRef": "Repurchase Stability %",
+              "format": "0.00%;-0.00%;0.00%"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "zoom": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "categoryMax": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            },
+            "categorySize": {
+              "expr": {
+                "Literal": {
+                  "Value": "87668.74554962658D"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "valueAxis": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            },
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "showAxisTitle": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "categoryAxis": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "9896c258ea1db1bbb037",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "customer_monthlyrfm"
+              }
+            },
+            "Property": "CustomerSegment"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "c",
+              "Entity": "customer_monthlyrfm",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "c"
+                          }
+                        },
+                        "Property": "CustomerSegment"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Core'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Growth'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Longtail'"
+                        }
+                      }
+                    ],
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'Project'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

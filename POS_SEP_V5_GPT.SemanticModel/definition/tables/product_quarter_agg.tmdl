@@ -1,0 +1,64 @@
+table product_quarter_agg
+	lineageTag: 73ac24bd-4c80-4633-b6fe-eea1ea65bfa5
+
+	column GeoGroup
+		dataType: string
+		lineageTag: 22baa859-a8e7-4cf6-9e4a-b678af1395c9
+		summarizeBy: none
+		sourceColumn: GeoGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistName
+		dataType: string
+		lineageTag: d6633ae4-482d-4372-af90-ac7250e6c36a
+		summarizeBy: none
+		sourceColumn: DistName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductLine
+		dataType: string
+		lineageTag: da8464bd-02dc-4fab-afc4-a06277d97e18
+		summarizeBy: none
+		sourceColumn: ProductLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column AdjPtNo
+		dataType: string
+		lineageTag: 1226ba92-ccc4-4627-8781-2fe5fe2277e2
+		summarizeBy: none
+		sourceColumn: AdjPtNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterKey
+		dataType: int64
+		formatString: 0
+		lineageTag: c777dac6-b52e-45a5-8ac9-35e6290297a9
+		summarizeBy: count
+		sourceColumn: QuarterKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sales
+		dataType: double
+		lineageTag: aa22afca-d9c2-463f-889f-8779f0934330
+		summarizeBy: sum
+		sourceColumn: Sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition product_quarter_agg = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\agg\product_quarter_agg.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+

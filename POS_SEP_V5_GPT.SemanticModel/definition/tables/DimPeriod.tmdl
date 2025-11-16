@@ -1,0 +1,43 @@
+table DimPeriod
+	lineageTag: df5b07cf-5ea6-41af-93d4-0a7a5dd07f0d
+
+	column MonthKey
+		formatString: 0
+		lineageTag: f4267b7e-d74d-45fb-80bc-5ee8a0af4f05
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: [MonthKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		lineageTag: 393d3a15-bec5-4861-b04e-8af082abd9b4
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [YearMonth]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearQuarter
+		lineageTag: 51f6e6be-e887-402e-8ac9-7444937e8501
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [YearQuarter]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimPeriod = calculated
+		mode: import
+		source =
+				
+				DISTINCT (
+				    SELECTCOLUMNS (
+				        month_map,
+				        "MonthKey",    month_map[MonthKey],
+				        "YearMonth",   month_map[YearMonth],
+				        "YearQuarter", month_map[YearQuarter]   -- 若你在 month_map 有這欄
+				    )
+				)
+
+	annotation PBI_Id = a6623761c52349429b22a8fb0a44a2c2
+

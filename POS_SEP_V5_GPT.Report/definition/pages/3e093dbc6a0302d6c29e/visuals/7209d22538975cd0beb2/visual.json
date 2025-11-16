@@ -1,0 +1,63 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "7209d22538975cd0beb2",
+  "position": {
+    "x": 18.728376559046918,
+    "y": 424.50986867173009,
+    "z": 2000,
+    "height": 245.54982599639291,
+    "width": 377.3421054859823,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "advancedSlicerVisual",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_MONTH"
+                    }
+                  },
+                  "Property": "MonthEnd"
+                }
+              },
+              "queryRef": "DIM_MONTH.MonthEnd",
+              "nativeQueryRef": "MonthEnd"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "DIM_MONTH"
+                  }
+                },
+                "Property": "MonthEnd"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "objects": {
+      "general": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,49 @@
+table WF_Stage
+	lineageTag: ca08739a-7a44-420e-aef3-206e0f18d3d1
+
+	measure WF_Revenue =
+			
+			VAR _stage = SELECTEDVALUE ( WF_Stage[Stage] )
+			RETURN
+			SWITCH(
+			    _stage,
+			    "Start",  [Sales_12M_Prev1],                    -- 起點：Current-1
+			    "Change", [Sales_12M_Current] - [Sales_12M_Prev1], -- 變動：Current-1 → Current 的差額
+			    BLANK()
+			)
+		lineageTag: 3e46bcc3-6b80-4ca6-816b-f2e2ba03171d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Stage
+		lineageTag: 02c30479-8e14-43c3-873f-c660d935165e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Stage]
+
+		annotation SummarizationSetBy = Automatic
+
+	column StageSort
+		formatString: 0
+		lineageTag: 8f7fbd60-f392-41c1-bfeb-ac4185b00311
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [StageSort]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition WF_Stage = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Stage", STRING,
+				    "StageSort", INTEGER,
+				    {
+				        {"Start", 0},   -- 代表 Current-1
+				        {"Change", 1}   -- 代表整體變動（分解到 PDL）
+				    }
+				)
+
+	annotation PBI_Id = 6aa2169ff41b4bb3a89c1eb050e95578
+

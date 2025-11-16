@@ -1,0 +1,93 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "45df276f90700d67b0c6",
+  "position": {
+    "x": 80,
+    "y": 8,
+    "z": 0,
+    "height": 528,
+    "width": 1168
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Columns": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "ProductLine_Col"
+                    }
+                  },
+                  "Property": "ProductLine"
+                }
+              },
+              "queryRef": "ProductLine_Col.ProductLine",
+              "nativeQueryRef": "ProductLine1",
+              "active": true
+            }
+          ]
+        },
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "sales_m_pdl"
+                    }
+                  },
+                  "Property": "ProductLine"
+                }
+              },
+              "queryRef": "sales_m_pdl.ProductLine",
+              "nativeQueryRef": "ProductLine",
+              "active": true
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "Cross % of Row"
+                }
+              },
+              "queryRef": "0  MEASURES.Cross % of Row",
+              "nativeQueryRef": "Cross % of Row",
+              "format": "0.0%;-0.0%;0.0%"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "sales_m_pdl"
+                  }
+                },
+                "Property": "ProductLine"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

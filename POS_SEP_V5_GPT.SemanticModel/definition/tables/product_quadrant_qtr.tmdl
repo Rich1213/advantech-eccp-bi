@@ -1,0 +1,243 @@
+table product_quadrant_qtr
+	lineageTag: 7814f6cf-833d-497b-b94e-c9e55cc10e84
+
+	measure RSJP_Color =
+			
+			VAR sku =
+			    SELECTEDVALUE('product_quadrant_month'[SKU])
+			VAR hit =
+			    CALCULATE(
+			        COUNTROWS('PlatformListing'),
+			        TREATAS({ sku }, 'PlatformListing'[MatchedPartNo])  -- 不需關聯也可比對
+			    )
+			RETURN
+			IF(hit > 0, "#E11D48", "#3B82F6")   -- 上架=紅色，未上架=藍色（你可改自己喜歡的色碼）
+		lineageTag: 06098056-d541-49e2-af0c-99e8d78932c7
+
+	column SKU
+		dataType: string
+		lineageTag: 9ffc4a33-12cf-4e1d-b32c-bc325179ecca
+		summarizeBy: none
+		sourceColumn: SKU
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductLine
+		dataType: string
+		lineageTag: 93b14ec6-296e-40d6-8818-f43a50edd88d
+		summarizeBy: none
+		sourceColumn: ProductLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistName
+		dataType: string
+		lineageTag: 7ed7013a-d235-4c77-afd7-bed06b18fdde
+		summarizeBy: none
+		sourceColumn: DistName
+
+		annotation SummarizationSetBy = Automatic
+
+	column GeoGroup
+		dataType: string
+		lineageTag: 6a425130-2e6b-4351-9e7f-e3167d24724f
+		summarizeBy: none
+		sourceColumn: GeoGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearQuarter
+		dataType: string
+		lineageTag: 25f8315b-6ab1-4dba-987c-e23a6a357fea
+		summarizeBy: none
+		sourceColumn: YearQuarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterKey
+		dataType: int64
+		formatString: 0
+		lineageTag: 9b476566-8bb9-4b8e-8450-f870eec51936
+		summarizeBy: count
+		sourceColumn: QuarterKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 7f4aa0f6-fbc7-47e4-9672-02327b0c660b
+		summarizeBy: none
+		sourceColumn: MonthEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnnualGM
+		dataType: double
+		lineageTag: 08908c4d-9425-4e13-82b1-1b87f08d7c9d
+		summarizeBy: sum
+		sourceColumn: AnnualGM
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column AnnualQty
+		dataType: double
+		lineageTag: c439d94c-b7dd-4625-892f-9cfde81b0856
+		summarizeBy: sum
+		sourceColumn: AnnualQty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CV12
+		dataType: double
+		lineageTag: 176f6f5b-dfd1-40f6-a4dd-5a92675fc750
+		summarizeBy: sum
+		sourceColumn: CV12
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ADI12
+		dataType: double
+		lineageTag: 89cf3e85-3a7d-4798-b00f-3f9c05c3f4bf
+		summarizeBy: sum
+		sourceColumn: ADI12
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ABC_GM
+		dataType: string
+		lineageTag: 48df6165-2712-4508-a59c-079d850612a8
+		summarizeBy: none
+		sourceColumn: ABC_GM
+
+		annotation SummarizationSetBy = Automatic
+
+	column ValueScore
+		dataType: double
+		lineageTag: 3262b4f5-7b49-4cb0-949f-a58538aa901c
+		summarizeBy: sum
+		sourceColumn: ValueScore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PredictabilityScore
+		dataType: double
+		lineageTag: bac59158-70b7-4295-b4c6-2aa357b6960c
+		summarizeBy: sum
+		sourceColumn: PredictabilityScore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ValueScore_Qty
+		dataType: double
+		lineageTag: d1fae402-e354-43c8-ab7c-bfb8c6f22a09
+		summarizeBy: sum
+		sourceColumn: ValueScore_Qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ProductNK
+		dataType: string
+		lineageTag: 929eeea6-b55e-4d71-9edc-a005b5bcb2f7
+		summarizeBy: none
+		sourceColumn: ProductNK
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnnualOrders
+		dataType: double
+		lineageTag: 966c8587-ef15-4760-9c47-ca37f7d9130f
+		summarizeBy: sum
+		sourceColumn: AnnualOrders
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CV12_Orders
+		dataType: double
+		lineageTag: af070c7e-e88a-4ce9-910f-bf8762e98b11
+		summarizeBy: sum
+		sourceColumn: CV12_Orders
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ValueScore_Orders
+		dataType: double
+		lineageTag: 851cb974-28b6-4b1a-b7b6-2d51e2427779
+		summarizeBy: sum
+		sourceColumn: ValueScore_Orders
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PredictabilityScore_Orders
+		dataType: double
+		lineageTag: 66be7cd1-19f8-44fd-a883-ddb8a5aa72fa
+		summarizeBy: sum
+		sourceColumn: PredictabilityScore_Orders
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ProductGroupRoll
+		dataType: string
+		lineageTag: 47d847f2-8576-47bf-ab2b-9aba3c61b82b
+		summarizeBy: none
+		sourceColumn: ProductGroupRoll
+
+		annotation SummarizationSetBy = Automatic
+
+	column SKU_Norm =
+			
+			UPPER ( TRIM ( 'product_quadrant_qtr'[SKU] ) )
+		lineageTag: 929d0520-30b3-417c-ab6b-4f147988894f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column RSJP_Flag =
+			
+			VAR sku_ = 'product_quadrant_qtr'[SKU]   -- 每個點的 SKU
+			VAR hit =
+			    LOOKUPVALUE(
+			        'PlatformListing'[MatchedPartNo],
+			        'PlatformListing'[MatchedPartNo], sku_
+			    )
+			RETURN
+			    IF( NOT ISBLANK(hit), "RSJP上架", "未上架" )
+		lineageTag: 18ff931d-6f33-41c8-9c56-0a7d4e67db15
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition product_quadrant_qtr = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\agg\product_quadrant_qtr.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = 導覽
+

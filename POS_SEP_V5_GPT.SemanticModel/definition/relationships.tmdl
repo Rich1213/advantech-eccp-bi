@@ -1,0 +1,325 @@
+relationship AutoDetected_f49b4169-e5f9-4a75-9888-45a5cee8f1bf
+	isActive: false
+	fromColumn: CustomerChannelMap.Channel
+	toColumn: DIM_CHANNEL.Channel
+
+relationship AutoDetected_a4c25d6a-922e-4993-8303-762fea51bb8e
+	fromColumn: customer_monthlyrfm.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_86248178-c254-45e9-860e-b478673aed5f
+	fromColumn: BRIDGE_PRODUCT_CHANNEL.Channel
+	toColumn: DIM_CHANNEL.Channel
+
+relationship AutoDetected_e7b7077a-150f-4e51-9485-46611e97e37c
+	fromColumn: sales_m_pdl.MonthKey
+	toColumn: month_map.MonthKey
+
+relationship AutoDetected_44a0530d-0840-4750-985f-590834bac953
+	fromColumn: customer_tier_month.MonthKey
+	toColumn: month_map.MonthKey
+
+relationship AutoDetected_2f56ae4a-f315-4842-8d6e-ea4d97d51925
+	fromColumn: customer_tier_flow_m1.MonthKey
+	toColumn: month_map.MonthKey
+
+relationship AutoDetected_2fe16faa-4c94-446b-8e6c-0f4e29c261dc
+	fromColumn: sales_m_pdl.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_37e58a82-2815-4b54-97a0-ea3bc9f96c46
+	fromColumn: customer_tier_month.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_65067c87-5044-459e-8f71-74706634c323
+	fromColumn: customer_tier_flow_m1.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_7f0f5692-fe25-4ac7-9a02-e5fe34d3a038
+	fromColumn: cohort_retention_abc.Channel
+	toColumn: DIM_CHANNEL.Channel
+
+relationship AutoDetected_b846fb3a-ffed-4414-a4d1-a7136c878d18
+	fromColumn: cohort_retention_abc.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_d1742592-e105-4503-8007-020771c10ea2
+	fromColumn: customer_monthlyrfm_global.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_1b2bde87-e2f8-4b42-a7c5-f584d263368f
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: BRIDGE_CUSTOMER_COUNTRY.CustomerNK
+	toColumn: CustomerChannelMap.CustomerNK
+
+relationship da36deb0-6502-2a30-c13d-e4bb341789db
+	fromColumn: Product_MonthlyTag.SnapshotMonth
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship d33c36c6-a582-5927-5328-271f3f71a8f1
+	fromColumn: customer_monthlyrfm.MonthEnd
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship 94ec5d4c-55ce-6de3-03d6-c79ffb4ca7e6
+	fromColumn: fact_clean.POS_ShpDate
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship 1d1cefcd-0935-9b2c-6c6c-afacad510560
+	fromColumn: customer_monthlyrfm_global.MonthEnd
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship fd5f3864-4b15-0800-e546-8668fe27d4cc
+	fromColumn: sales_m_pdl.MonthKey
+	toColumn: DIM_MONTH.MonthKey
+
+relationship AutoDetected_3e6d8264-baff-44bd-94ea-7cf802a20cc4
+	fromColumn: fact_clean.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship AutoDetected_a0b03eb5-d851-4e34-933d-f51b0b602d33
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: CustomerChannelMap.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship AutoDetected_b67526d3-e1f6-4d1f-84f2-e7beff774a73
+	fromColumn: sales_m_pdl.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship AutoDetected_4cf11644-f66d-46be-a2d3-772baaf8c6c0
+	fromColumn: customer_tier_month.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship AutoDetected_c4391132-eb99-40ea-b7d0-5d25d71b4589
+	fromColumn: customer_tier_flow_m1.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship AutoDetected_6c08f808-5dc0-4848-ab6b-caa3bb67bbb2
+	fromColumn: customer_tier_flow_m1_global.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship AutoDetected_508de7e9-c479-48bb-8972-11bc319f0587
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: BRIDGE_CUSTOMER_COUNTRY.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship AutoDetected_646b32ac-96b1-4d5b-afb1-0aaa1733ffbc
+	isActive: false
+	fromColumn: dim_customer.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_d686dde2-38e4-4fd2-9d5a-5d6dc1a5b200
+	fromColumn: dim_customer.Channel
+	toColumn: DIM_CHANNEL.Channel
+
+relationship AutoDetected_f9d40e7c-4377-49dc-b7ed-d389a9e7f818
+	fromColumn: dim_customer.Country
+	toColumn: DIM_REGION_COUNTRY.Country
+
+relationship AutoDetected_6642f348-42d3-4667-8c5e-b5d13cda14f6
+	fromColumn: product_quadrant_qtr.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_c06fcbd9-5201-4f8d-8b6a-9fade392067e
+	fromColumn: product_quadrant_month.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_27546b12-9d35-486e-8e45-4796f4fc07aa
+	isActive: false
+	fromColumn: customer_monthlyrfm.Channel
+	toColumn: DIM_CHANNEL.Channel
+
+relationship AutoDetected_0db2fb0b-9bbb-4970-9813-6317a98bc8c3
+	fromColumn: customer_monthlyrfm_global.Channel
+	toColumn: DIM_CHANNEL.Channel
+
+relationship c01aeeeb-ffbb-9c7b-c778-306696b6d6ad
+	isActive: false
+	fromColumn: customer_monthlyrfm_global.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship e7ffdc1a-48a5-0fc7-b7b9-dd9ba6aa2503
+	fromColumn: fact_clean.ProductNK
+	toColumn: DIM_PRODUCT.ProductNK
+
+relationship ecff4f75-37ca-5755-341e-4ace1c0df052
+	fromColumn: BRIDGE_PRODUCT_CHANNEL.ProductNK
+	toColumn: DIM_PRODUCT.ProductNK
+
+relationship 763d06b3-85e4-dfed-a8e2-512bd2f6badb
+	isActive: false
+	fromColumn: BRIDGE_CUSTOMER_COUNTRY.Country
+	toColumn: DIM_REGION_COUNTRY.Country
+
+relationship AutoDetected_6b00b0c8-2835-4f4f-9323-b201c0e979f9
+	fromColumn: product_quadrant_qtr.ProductNK
+	toColumn: DIM_PRODUCT.ProductNK
+
+relationship AutoDetected_d516a489-4106-4089-b4a7-513f0b8c54f0
+	fromColumn: product_quadrant_month.ProductNK
+	toColumn: DIM_PRODUCT.ProductNK
+
+relationship AutoDetected_c8b527f0-9bfe-445c-96d3-acec787cc1f8
+	fromColumn: productline_quadrant.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_33d95dbd-d41e-4f5f-b9d2-9e14a057543a
+	isActive: false
+	fromColumn: FACT_SALES_MONTH.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship AutoDetected_8e32af73-3eb3-4e8a-a881-34091c98a093
+	fromColumn: FACT_SALES_MONTH.ProductNK
+	toColumn: DIM_PRODUCT.ProductNK
+
+relationship AutoDetected_06a3d765-73fe-429e-958e-81d5d081acc2
+	fromColumn: FACT_SALES_MONTH.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship AutoDetected_682ebe79-e890-4f60-bc46-6812229f32e4
+	fromColumn: FACT_SALES_MONTH.MonthKey
+	toColumn: month_map.MonthKey
+
+relationship 213d2479-b0bf-ba60-1c20-c0487bbce0ef
+	fromColumn: FACT_SALES_MONTH.MonthEnd
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship 9e35a036-dc78-5c73-d749-9f8267ae6f46
+	fromColumn: pdl_month_agg.GeoGroup
+	toColumn: DIM_REGION.GeoGroup
+
+relationship 51810d85-76a1-ae97-4fbc-5399dadfc00d
+	fromColumn: pdl_month_agg.DistName
+	toColumn: DIM_CHANNEL.Channel
+
+relationship d53f2157-1f8e-0ad6-8447-9e1c4705c656
+	fromColumn: pdl_month_agg.MonthEnd
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship f510814b-41f3-cdd8-1e8f-d03cd0a6a51e
+	fromColumn: pdl_month_agg.ProductLine
+	toColumn: ProductLine_Col.ProductLine
+
+relationship a072b364-471b-8918-4723-525f387ddada
+	fromColumn: sales_m_pdl.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship dde5a1b6-9fca-d3b1-9ce4-7d8422966161
+	fromColumn: fact_clean.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship d68b8ca2-d8a1-c94b-ac80-8dd508e23430
+	fromColumn: product_quadrant_qtr.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship f3f99050-87c4-681c-d442-2916a6966168
+	fromColumn: product_quadrant_month.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship ae135993-5dae-3ecc-0581-b7e312a584e3
+	isActive: false
+	fromColumn: DIM_PRODUCT.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship 63ce6272-1668-caca-29e5-8ef489a85cc9
+	fromColumn: productline_quadrant.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship 0b222305-5890-0093-c903-d0b249a9ae9a
+	fromColumn: FACT_SALES_MONTH.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship b6deb055-4df0-303c-eb09-6d5c347a9305
+	fromColumn: segment_pdl_pref_24m.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship 828bf43c-d8e5-b33f-0cfd-da6a144a69af
+	fromColumn: pdl_month_agg.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship 794b7cc6-2114-fd6c-0559-b439d2dff80b
+	fromColumn: product_quarter_agg.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship AutoDetected_6dc0d24e-7cc5-4fcb-8600-dd7219ee8436
+	fromColumn: DIM_REGION_COUNTRY.GeoSubRegion
+	toColumn: DIM_GEO.GeoSubRegion
+
+relationship AutoDetected_e503a40b-a3b9-4c93-9d55-8347dd5f3f72
+	isActive: false
+	fromColumn: dim_customer.GeoSubRegion
+	toColumn: DIM_GEO.GeoSubRegion
+
+relationship 035d1706-ae2c-884c-b443-dd2ac552e462
+	fromColumn: pdl_month_agg.GeoGroup
+	toColumn: DIM_GeoGroup.GeoGroup
+
+relationship 8828c23b-54d7-b8c9-2457-a08c23a0466e
+	fromColumn: sales_m_pdl.GeoGroup
+	toColumn: DIM_GeoGroup.GeoGroup
+
+relationship 76f4f1de-4d84-1844-24dd-86724384cdd6
+	fromColumn: FACT_SALES_MONTH.GeoGroup
+	toColumn: DIM_GeoGroup.GeoGroup
+
+relationship AutoDetected_4246bcc7-7d00-405a-bdf3-c21d97a3e2ee
+	fromColumn: customer_monthlyrfm_pdl.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship AutoDetected_57161e11-ba03-4e5d-b828-ff3b8236244d
+	fromColumn: pareto_customer_12m.CustomerNK
+	toColumn: dim_customer.CustomerNK
+
+relationship cff89581-a42b-804f-ff1b-523451a8538a
+	fromColumn: pareto_customer_12m.MonthEnd
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship AutoDetected_f247744c-9b5c-4604-aa86-da08e882423b
+	fromColumn: pareto_productline_12m.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship ca858602-9b08-2d59-d5a0-924979bcaa3e
+	fromColumn: pareto_productline_12m.MonthEnd
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship AutoDetected_916b8a83-ec3f-47e4-9019-0c430e822e18
+	fromColumn: pareto_productgrouproll_geo_dist_productline_12m.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship 3d4f955d-1047-2bad-971c-4869f128919b
+	fromColumn: pareto_productgrouproll_geo_dist_productline_12m.MonthEnd
+	toColumn: DIM_MONTH.MonthEnd
+
+relationship AutoDetected_cb58f4ac-9ec7-452e-a902-e2dd5b969f75
+	isActive: false
+	fromColumn: FACT_SALES_MONTH.CustDistKeyMonth
+	toColumn: customer_monthlyrfm.CustDistKeyMonth
+
+relationship 89e34658-e166-1f4b-1407-b25ca7b311f1
+	crossFilteringBehavior: bothDirections
+	fromColumn: customer_monthlyrfm.CustDistKeyMonth
+	toColumn: bridge_custdist_month.CustDistKeyMonth
+
+relationship f62b6b9c-a6b0-61ad-c1f8-1abfb10c075f
+	fromColumn: FACT_SALES_MONTH.CustDistKeyMonth
+	toColumn: bridge_custdist_month.CustDistKeyMonth
+
+relationship AutoDetected_59969116-7436-4435-9562-9e1b0667a408
+	fromColumn: fact_clean_with_custdistkeymonth.ProductNK
+	toColumn: DIM_PRODUCT.ProductNK
+
+relationship AutoDetected_b96f761a-997d-4fc8-b287-e34b49c3a464
+	fromColumn: fact_clean_with_custdistkeymonth.ProductLine
+	toColumn: DIM_ProductLine.ProductLine
+
+relationship AutoDetected_398d71d2-23f7-41b2-b261-a7cf63bd8347
+	fromColumn: fact_clean_with_custdistkeymonth.CustDistKeyMonth
+	toColumn: bridge_custdist_month.CustDistKeyMonth
+
+relationship AutoDetected_91060387-ede2-4643-83dc-132a6b59d175
+	fromColumn: fact_clean_with_custdistkeymonth.MonthKey
+	toColumn: month_map.MonthKey
+

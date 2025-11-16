@@ -1,0 +1,683 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "d33d71e534038837be65",
+  "position": {
+    "x": 23.999999999999996,
+    "y": 120,
+    "z": 2000,
+    "height": 560,
+    "width": 840,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_ProductLine"
+                    }
+                  },
+                  "Property": "ProductLine"
+                }
+              },
+              "queryRef": "DIM_ProductLine.ProductLine",
+              "nativeQueryRef": "產品線",
+              "active": true,
+              "displayName": "產品線"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_clean"
+                    }
+                  },
+                  "Property": "AdjPtNo"
+                }
+              },
+              "queryRef": "fact_clean.AdjPtNo",
+              "nativeQueryRef": "AdjPtNo",
+              "active": false
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "customer_monthlyrfm"
+                    }
+                  },
+                  "Property": "RFM Sales TY 12M"
+                }
+              },
+              "queryRef": "customer_monthlyrfm.RFM Sales TY 12M",
+              "nativeQueryRef": "年營業額",
+              "displayName": "年營業額"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "RFM Qty TY 12M"
+                }
+              },
+              "queryRef": "0  MEASURES.RFM Qty TY 12M",
+              "nativeQueryRef": "銷售量",
+              "displayName": "銷售量",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "Distinct Customers 12M by ProductLine"
+                }
+              },
+              "queryRef": "0  MEASURES.Distinct Customers 12M by ProductLine",
+              "nativeQueryRef": "客戶數",
+              "displayName": "客戶數",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "PL_RepurchaseRate_12M"
+                }
+              },
+              "queryRef": "0  MEASURES.PL_RepurchaseRate_12M",
+              "nativeQueryRef": "回購率",
+              "displayName": "回購率",
+              "format": "0%;-0%;0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "RepurchaseRevenuePct_12M"
+                }
+              },
+              "queryRef": "0  MEASURES.RepurchaseRevenuePct_12M",
+              "nativeQueryRef": "回購營收占比",
+              "displayName": "回購營收占比",
+              "format": "0%;-0%;0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "Rolling12M_Retention"
+                }
+              },
+              "queryRef": "0  MEASURES.Rolling12M_Retention",
+              "nativeQueryRef": "年留存率",
+              "displayName": "年留存率",
+              "format": "0%;-0%;0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "RetainedRevenuePct_12M"
+                }
+              },
+              "queryRef": "0  MEASURES.RetainedRevenuePct_12M",
+              "nativeQueryRef": "留存客金額占比",
+              "displayName": "留存客金額占比",
+              "format": "0%;-0%;0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "PD Stability 12M"
+                }
+              },
+              "queryRef": "0  MEASURES.PD Stability 12M",
+              "nativeQueryRef": "營收穩定度",
+              "displayName": "營收穩定度",
+              "format": "0%;-0%;0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "Product_MonthsWithSales_12M"
+                }
+              },
+              "queryRef": "0  MEASURES.Product_MonthsWithSales_12M",
+              "nativeQueryRef": "月活性",
+              "displayName": "月活性"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "customer_monthlyrfm"
+                  }
+                },
+                "Property": "RFM Sales TY 12M"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "expansionStates": [
+      {
+        "roles": [
+          "Rows"
+        ],
+        "levels": [
+          {
+            "queryRefs": [
+              "DIM_ProductLine.ProductLine"
+            ],
+            "isCollapsed": true,
+            "identityKeys": [
+              {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_ProductLine"
+                    }
+                  },
+                  "Property": "ProductLine"
+                }
+              }
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "fact_clean.AdjPtNo"
+            ],
+            "isCollapsed": true,
+            "isPinned": true
+          }
+        ],
+        "root": {}
+      }
+    ],
+    "objects": {
+      "values": [
+        {
+          "properties": {
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Arial'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {},
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "0  MEASURES.PL_RepurchaseRate_12M"
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {
+            "autoSizeColumnWidth": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Arial'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "backColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 3,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "169.39176677663323D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "DIM_ProductLine.ProductLine"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "100.33319421070328D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "customer_monthlyrfm.RFM Sales TY 12M"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "65.27126027228495D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0  MEASURES.RFM Qty TY 12M"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "68.14920468648529D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0  MEASURES.PL_RepurchaseRate_12M"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "66.08404581873938D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0  MEASURES.Distinct Customers 12M by ProductLine"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "66.56374533596514D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0  MEASURES.Rolling12M_Retention"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "47.19824683721568D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0  MEASURES.Product_MonthsWithSales_12M"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "88.08361111010254D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0  MEASURES.RetainedRevenuePct_12M"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "70.29737553300102D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0  MEASURES.PD Stability 12M"
+          }
+        }
+      ],
+      "rowHeaders": [
+        {
+          "properties": {
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Arial'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            },
+            "showExpandCollapseButtons": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "expandCollapseButtonsSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "8D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'PMF 指數'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "stylePreset": [
+        {
+          "properties": {
+            "name": {
+              "expr": {
+                "Literal": {
+                  "Value": "'AlternatingRowsNew'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "bf5e29f74e05959d7266",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DIM_ProductLine"
+              }
+            },
+            "Property": "ProductLine"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "040fb57098a34a155004",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0  MEASURES"
+              }
+            },
+            "Property": "RetainedRevenuePct_12M"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "79c48711ae937eb59925",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0  MEASURES"
+              }
+            },
+            "Property": "RFM Qty TY 12M"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "0597652bcac65aeb0479",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_clean"
+              }
+            },
+            "Property": "AdjPtNo"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "1fbf80e35c64eeb88896",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0  MEASURES"
+              }
+            },
+            "Property": "PL_RepurchaseRate_12M"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "d85717ba100533be832e",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0  MEASURES"
+              }
+            },
+            "Property": "Rolling12M_Retention"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "fa703ce5c891079c1c58",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "customer_monthlyrfm"
+              }
+            },
+            "Property": "RFM Sales TY 12M"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "f1e09cf5860881b93c0d",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0  MEASURES"
+              }
+            },
+            "Property": "Distinct Customers 12M by ProductLine"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "f72f5ce0c38e447cbe4c",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0  MEASURES"
+              }
+            },
+            "Property": "PD Stability 12M"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "be461557706006999246",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0  MEASURES"
+              }
+            },
+            "Property": "Product_MonthsWithSales_12M"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "a8b1b307d4ac0dd06357",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0  MEASURES"
+              }
+            },
+            "Property": "RepurchaseRevenuePct_12M"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

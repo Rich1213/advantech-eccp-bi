@@ -1,0 +1,19 @@
+table Boundary
+	lineageTag: 2e387b19-0acd-42b5-ae89-feabea772914
+
+	column Boundary
+		lineageTag: ba58b6ed-6214-4ef5-af03-9ece44b2878c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Boundary]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Boundary = calculated
+		mode: import
+		source =
+				
+				DATATABLE ( "Boundary", STRING, { { "Start" }, { "End" } } )
+
+	annotation PBI_Id = 798987865881447394684de38a3af132
+

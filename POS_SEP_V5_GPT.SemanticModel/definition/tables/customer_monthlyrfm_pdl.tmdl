@@ -1,0 +1,80 @@
+table customer_monthlyrfm_pdl
+	lineageTag: 6eee69ad-7b72-4682-95f1-16d16449b84d
+
+	column MonthEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 698fbece-0247-4017-aae0-1b303b3a17b8
+		summarizeBy: none
+		sourceColumn: MonthEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistName
+		dataType: string
+		lineageTag: 23de618d-a94f-4882-a472-d2f9234e3156
+		summarizeBy: none
+		sourceColumn: DistName
+
+		annotation SummarizationSetBy = Automatic
+
+	column GeoGroup
+		dataType: string
+		lineageTag: 47cb8f40-c68c-4ce8-81a9-be863a3c2ca7
+		summarizeBy: none
+		sourceColumn: GeoGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductLine
+		dataType: string
+		lineageTag: 4aed58e2-5068-400b-9e05-a1a5475b9147
+		summarizeBy: none
+		sourceColumn: ProductLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column RFM_NameZh
+		dataType: string
+		lineageTag: 7a5d57a8-c21f-4518-8b08-6d07800924b3
+		summarizeBy: none
+		sourceColumn: RFM_NameZh
+
+		annotation SummarizationSetBy = Automatic
+
+	column RFM_NameEn
+		dataType: string
+		lineageTag: 459e3049-72c2-4754-81de-43c9526564b4
+		summarizeBy: none
+		sourceColumn: RFM_NameEn
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductGroupRoll
+		dataType: string
+		lineageTag: c7050745-1ad2-455a-9c73-4c453e4d6c71
+		summarizeBy: none
+		sourceColumn: ProductGroupRoll
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sales_12M
+		dataType: double
+		lineageTag: 9cbd1eca-41d5-457c-a848-79e0f5c2914a
+		summarizeBy: sum
+		sourceColumn: Sales_12M
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition customer_monthlyrfm_pdl = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\agg\customer_monthlyrfm_pdl.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,98 @@
+table customer_monthlyrfm_global
+	lineageTag: 11e3ba18-0540-4212-8ad7-38cb9d579e27
+
+	measure Sales_Current_DEBUG = [Sales_Current]
+		lineageTag: e86210b9-1a49-4371-901f-042d7d076800
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Sales_Prev_DEBUG = [Sales_Current_1]
+		lineageTag: 42ee3198-f415-4da3-8647-9c5f2fc9907a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CustomerNK
+		dataType: string
+		lineageTag: 42329e60-cef2-4bc4-a6b4-856ef128a748
+		summarizeBy: none
+		sourceColumn: CustomerNK
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthEnd
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: cb7c0cfb-3018-4c1c-896e-af1461f08a8d
+		summarizeBy: none
+		sourceColumn: MonthEnd
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Sales12M
+		dataType: double
+		lineageTag: eea16893-28c8-48bf-9bfc-baf64742c0c1
+		summarizeBy: sum
+		sourceColumn: Sales12M
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Freq12M
+		dataType: double
+		lineageTag: 39b17541-373b-4f1a-a058-a9cb6bab5687
+		summarizeBy: sum
+		sourceColumn: Freq12M
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column AnnualValue
+		dataType: double
+		lineageTag: 6f870fb6-3faa-460c-a008-19f383bbce34
+		summarizeBy: sum
+		sourceColumn: AnnualValue
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column GeoGroup
+		dataType: string
+		lineageTag: 4aebffc2-7d02-4f9e-9549-532cf4305d2e
+		summarizeBy: none
+		sourceColumn: GeoGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistName
+		dataType: string
+		lineageTag: e7702705-a469-48aa-9192-974b12d807fd
+		summarizeBy: none
+		sourceColumn: DistName
+
+		annotation SummarizationSetBy = Automatic
+
+	column Channel
+		dataType: string
+		lineageTag: 910b0352-f6db-4a68-a99d-fe4595d74a41
+		summarizeBy: none
+		sourceColumn: Channel
+
+		annotation SummarizationSetBy = Automatic
+
+	partition customer_monthlyrfm_global = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\customer_monthlyrfm_global.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+

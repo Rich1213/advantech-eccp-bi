@@ -1,0 +1,48 @@
+table Tier_From
+	lineageTag: 96566efd-a638-4307-a71a-71f86ffa3b09
+
+	measure 'Row % of Matrix' =
+			
+			VAR denom =
+			    CALCULATE ( [Flow Customers (Boundary)], REMOVEFILTERS ( 'Tier_To' ) )
+			RETURN
+			    DIVIDE ( [Flow Customers (Boundary)], denom )
+		lineageTag: 0bf68e25-7b32-4eb0-a4e4-772a3f3719ad
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Tier from'
+		lineageTag: 7b9f1440-d5ce-4dd1-aca4-22befa887244
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Tier from]
+		sortByColumn: FromOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column FromOrder
+		formatString: 0
+		lineageTag: bb772d1f-d1f0-409e-84cf-b757f4b08ffc
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [FromOrder]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Tier_From = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Tier from", STRING,
+				    "FromOrder", INTEGER,
+				    {
+				        {"Head",     1},
+				        {"Mid",      2},
+				        {"Tail",     3},
+				        {"NoSpend",  4}
+				    }
+				)
+
+	annotation PBI_Id = 6f671a63221945c2ab07b6088fc2cb6c
+

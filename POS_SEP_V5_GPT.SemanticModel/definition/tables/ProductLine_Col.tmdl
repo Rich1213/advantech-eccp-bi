@@ -1,0 +1,19 @@
+table ProductLine_Col
+	lineageTag: 54a1a318-7eeb-41d7-97f4-5ec96159ec83
+
+	column ProductLine
+		lineageTag: 039d82d8-2e54-4d3a-a16e-b3c9112e3de6
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: sales_m_pdl[ProductLine]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ProductLine_Col = calculated
+		mode: import
+		source =
+				
+				DISTINCT ( 'sales_m_pdl'[ProductLine] )
+
+	annotation PBI_Id = 6d5b4502bb674faf8b2e2fd569a7fb61
+

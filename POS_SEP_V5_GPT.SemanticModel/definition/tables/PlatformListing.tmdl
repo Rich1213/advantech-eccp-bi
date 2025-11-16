@@ -1,0 +1,208 @@
+table PlatformListing
+	lineageTag: f1eee355-495b-41ce-9411-23baded6220f
+
+	column Platform
+		dataType: string
+		lineageTag: a6a8b90f-91dc-488f-8d28-9be3d7358f2a
+		summarizeBy: none
+		sourceColumn: Platform
+
+		annotation SummarizationSetBy = Automatic
+
+	column OnShelf
+		dataType: string
+		lineageTag: 4ad127e2-2127-4216-a697-10eb322afd1b
+		summarizeBy: none
+		sourceColumn: OnShelf
+
+		annotation SummarizationSetBy = Automatic
+
+	column ModelName
+		dataType: string
+		lineageTag: eda2f7d7-d381-458e-b13a-4e0787cef8e6
+		summarizeBy: none
+		sourceColumn: ModelName
+
+		annotation SummarizationSetBy = Automatic
+
+	column MatchedPartNo
+		dataType: string
+		lineageTag: db1e0dd7-8b98-49a3-8c6e-4b24d0fc6ee7
+		summarizeBy: none
+		sourceColumn: MatchedPartNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column MatchedPL
+		dataType: string
+		lineageTag: deaa32e7-babf-422f-8036-dc32c9941cdc
+		summarizeBy: none
+		sourceColumn: MatchedPL
+
+		annotation SummarizationSetBy = Automatic
+
+	column MatchedGroupRoll
+		dataType: string
+		lineageTag: 46b5ffcc-346d-4170-a5cb-646d6dd34e63
+		summarizeBy: none
+		sourceColumn: MatchedGroupRoll
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PlatformListing = m
+		mode: import
+		source =
+				let
+				    // ===== 讀 Excel 平台清單 =====
+				    SourceWB   = Excel.Workbook(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\RSJP.xlsx"), null, true),
+				    Sheet1     = SourceWB{[Item="工作表1", Kind="Sheet"]}[Data],
+				    TypeFixed0 = Table.TransformColumnTypes(Sheet1, {{"Column1", type text}}),
+				    Promoted   = Table.PromoteHeaders(TypeFixed0, [PromoteAllScalars=true]),
+				    // 你的檔案是 PartNum；這裡統一改名為 ModelName
+				    Renamed0   = if Table.HasColumns(Promoted, "PartNum")
+				                 then Table.RenameColumns(Promoted, {{"PartNum","ModelName"}})
+				                 else Promoted,
+				
+				    // 型別
+				    TypeFixed1 = Table.TransformColumnTypes(Renamed0, {{"ModelName", type text}}),
+				
+				    // 若沒欄位就補預設 Platform=RSJP、OnShelf=Y（已有就保留）
+				    WithPlatform =
+				        if Table.HasColumns(TypeFixed1, "Platform") then TypeFixed1
+				        else Table.AddColumn(TypeFixed1, "Platform", each "RSJP", type text),
+				    WithOnShelf  =
+				        if Table.HasColumns(WithPlatform, "OnShelf") then WithPlatform
+				        else Table.AddColumn(WithPlatform, "OnShelf",  each "Y",    type text),
+				
+				    // ===== 小工具：BaseKey 與 SuffixRank =====
+				    // BaseKey：若最後一個 '-' 後面是 1~2 個英文字母，視為尾碼，去掉後當 Base；否則整段即 Base
+				    fnBaseKey = (s as nullable text) as text =>
+				        let
+				            t0 = if s = null then "" else Text.Upper(Text.Trim(s)),
+				            t  = Text.Replace(Text.Replace(Text.Replace(t0, " ", ""), "‐", "-"), "_", "-"),
+				            lastDash = Text.PositionOf(t, "-", Occurrence.Last),
+				            suf      = if lastDash <> -1 then Text.Range(t, lastDash+1) else "",
+				            alpha    = List.Transform({65..90}, each Character.FromNumber(_)),
+				            onlyAZ   = Text.Select(suf, alpha) = suf,
+				            len      = Text.Length(suf),
+				            base     = if (lastDash <> -1 and len >= 1 and len <= 2 and onlyAZ)
+				                       then Text.Start(t, lastDash) else t
+				        in  base,
+				
+				    // SuffixRank：取最後一個英文字母（A=1…Z=26），沒有或不合規則給 0
+				    fnSuffixRank = (s as nullable text) as number =>
+				        let
+				            t0  = if s = null then "" else Text.Upper(Text.Trim(s)),
+				            t   = Text.Replace(Text.Replace(Text.Replace(t0, " ", ""), "‐", "-"), "_", "-"),
+				            p   = Text.PositionOf(t, "-", Occurrence.Last),
+				            suf = if p <> -1 then Text.Range(t, p+1) else "",
+				            n   = Text.Length(suf),
+				            r   = if n >= 1 then
+				                     let lastCh = Text.End(suf, 1)
+				                     in  if lastCh >= "A" and lastCh <= "Z" then Character.ToNumber(Text.ToList(lastCh){0}) - 64 else 0
+				                 else 0
+				        in  r,
+				
+				    // 平台清單：掛上 BaseKey / SuffixRank
+				    L0 = Table.TransformColumns(WithOnShelf, {{"ModelName", each if _=null then null else Text.Upper(Text.Trim(_)), type text}}),
+				    L1 = Table.AddColumn(L0, "BaseKey",   each fnBaseKey([ModelName]), type text),
+				    L2 = Table.AddColumn(L1, "SuffixRank",each fnSuffixRank([ModelName]), Int64.Type),
+				
+				    // ===== ULI 系列人工對應（命中即優先採用）=====
+				    // Key 請放「去尾碼」之 BaseKey（例如 ULI-223D）
+				    Overrides =
+				        #table(
+				            type table [Key=text, PartNo=text],
+				            {
+				                {"ULI-223D",  "BB-422PP9R"},
+				                {"ULI-224TC", "BB-485LDRC9"},
+				                {"ULI-321D",  "BB-232USB9M"},
+				                {"ULI-341TC", "BB-USOPTL4"},
+				                {"ULI-227D3", "BB-232LPTTL33"},
+				                {"ULI-234TC", "BB-485OP"},
+				                {"ULI-361TK", "BB-485USBTB2WLS-A"},
+				                {"ULI-417H",  "BB-USH207-B"},
+				                {"ULI-262D",  "BB-9PMDS"},
+				                {"ULI-226T",  "BB-485SD9TB"}
+				            }
+				        ),
+				    MergeOv     = Table.NestedJoin(L2, {"BaseKey"}, Overrides, {"Key"}, "ov", JoinKind.LeftOuter),
+				    WithOverride= Table.ExpandTableColumn(MergeOv, "ov", {"PartNo"}, {"OverridePartNo"}),
+				
+				    // ===== DIM_PRODUCT：準備比對欄位 =====
+				    // 期待欄位：AdjPtNo_Sample, ProductLine, ProductGroupRoll
+				    DimRaw      = DIM_PRODUCT,
+				    DimPick     =
+				        let
+				            hasAdj = Table.HasColumns(DimRaw, "AdjPtNo_Sample"),
+				            hasPL  = Table.HasColumns(DimRaw, "ProductLine"),
+				            hasGR  = Table.HasColumns(DimRaw, "ProductGroupRoll"),
+				            t1     = if hasAdj then DimRaw else error "DIM_PRODUCT 缺少欄位：AdjPtNo_Sample",
+				            t2     = if hasPL  then t1     else Table.AddColumn(t1, "ProductLine", each null, type text),
+				            t3     = if hasGR  then t2     else Table.AddColumn(t2, "ProductGroupRoll", each null, type text)
+				        in  Table.SelectColumns(t3, {"AdjPtNo_Sample","ProductLine","ProductGroupRoll"}),
+				    DimNorm     = Table.TransformColumns(DimPick, {{"AdjPtNo_Sample", each if _=null then null else Text.Upper(Text.Trim(_)), type text}}),
+				    DimWithKey  = Table.AddColumn(DimNorm, "ProdBaseKey", each fnBaseKey([AdjPtNo_Sample]), type text),
+				    DimWithRank = Table.AddColumn(DimWithKey, "SuffixRank",  each fnSuffixRank([AdjPtNo_Sample]), Int64.Type),
+				
+				    // ===== 每筆 ModelName 找候選、決定最佳配對（人工對應優先）=====
+				    AddCandidates =
+				        Table.AddColumn(
+				            WithOverride,
+				            "Candidates",
+				            (r as record) =>
+				                let bk = Record.Field(r, "BaseKey")
+				                in  Table.SelectRows(DimWithRank, each [ProdBaseKey] = bk),
+				            type table
+				        ),
+				
+				    PickBest =
+				        Table.AddColumn(
+				            AddCandidates,
+				            "Best",
+				            (r as record) =>
+				                let
+				                    ov  = Record.FieldOrDefault(r, "OverridePartNo", null),
+				                    cand= Record.Field(r, "Candidates"),
+				                    bestByOverride =
+				                        if ov <> null then
+				                            let t = Table.SelectRows(DimWithRank, each [AdjPtNo_Sample] = Text.Upper(Text.Trim(ov)))
+				                            in  if Table.IsEmpty(t) then null else t{0}
+				                        else null,
+				                    bestAuto =
+				                        if ov = null then
+				                            if Table.IsEmpty(cand) then null
+				                            else
+				                                let
+				                                    sorted = Table.Sort(cand, {{"SuffixRank", Order.Descending}, {"AdjPtNo_Sample", Order.Ascending}})
+				                                in  sorted{0}
+				                        else null
+				                in
+				                    if bestByOverride <> null then bestByOverride else bestAuto,
+				            type any
+				        ),
+				
+				    // 把 Best(Record) 展成欄位
+				    AddMatched1 = Table.AddColumn(PickBest, "MatchedPartNo",   each try [Best][AdjPtNo_Sample]   otherwise null, type text),
+				    AddMatched2 = Table.AddColumn(AddMatched1, "MatchedPL",     each try [Best][ProductLine]      otherwise null, type text),
+				    AddMatched3 = Table.AddColumn(AddMatched2, "MatchedGroupRoll", each try [Best][ProductGroupRoll] otherwise null, type text),
+				
+				    // ===== 收斂輸出 =====
+				    RemoveHelpers = Table.RemoveColumns(AddMatched3, {"BaseKey","SuffixRank","Candidates","Best"}),
+				    // 確保列順序 & 避免重複欄位錯誤
+				    Output =
+				        let
+				            cols = {"ModelName","Platform","OnShelf","MatchedPartNo","MatchedPL","MatchedGroupRoll"},
+				            exist= List.Intersect({Table.ColumnNames(RemoveHelpers), cols})
+				        in
+				            Table.SelectColumns(RemoveHelpers, exist),
+				    已排序資料列 = Table.Sort(Output,{{"MatchedPartNo", Order.Ascending}}),
+				    移除空白資料列 = Table.SelectRows(已排序資料列, each not List.IsEmpty(List.RemoveMatchingItems(Record.FieldValues(_), {"", null}))),
+				    已篩選資料列 = Table.SelectRows(移除空白資料列, each ([MatchedPartNo] <> null))
+				in
+				    已篩選資料列
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = 導覽
+

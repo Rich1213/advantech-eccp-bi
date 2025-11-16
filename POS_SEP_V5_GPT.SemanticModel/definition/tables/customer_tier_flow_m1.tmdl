@@ -1,0 +1,223 @@
+table customer_tier_flow_m1
+	lineageTag: 98df6527-3caf-469e-a8f3-7763935b3bd8
+
+	measure _StartMonths =
+			
+			CALCULATETABLE (
+			    VALUES ( PeriodStart[MonthKey] ),
+			    ALLSELECTED ( PeriodStart )
+			)
+		formatString: 0
+		lineageTag: d7442ce9-8ebe-4428-ba26-aa6888f25d1d
+
+	measure _EndMonths =
+			
+			CALCULATETABLE (
+			    VALUES ( PeriodEnd[MonthKey] ),
+			    ALLSELECTED ( PeriodEnd )
+			)
+		formatString: 0
+		lineageTag: 0137b219-0fee-4a30-8bd4-f80f928d072b
+
+	measure 'Flow Customers' =
+			
+			VAR s =
+			    CALCULATETABLE (
+			        VALUES ( PeriodStart[MonthKey] ),
+			        ALLSELECTED ( PeriodStart )
+			    )
+			VAR e =
+			    CALCULATETABLE (
+			        VALUES ( PeriodEnd[MonthKey] ),
+			        ALLSELECTED ( PeriodEnd )
+			    )
+			-- 列與欄的 Tier 範圍（吃矩陣的 Row/Column 或切片器）
+			VAR fromAxis = VALUES ( 'Tier_From'[Tier from] )   -- ←注意這裡
+			VAR toAxis   = VALUES ( 'Tier_To'[Tier to] )       -- ←注意這裡
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_tier_flow_m1[CustomerNK] ),
+			    -- 起迄月份條件：對應 flow 表的 MonthKey / NextMonthKey
+			    TREATAS ( s, customer_tier_flow_m1[MonthKey] ),
+			    TREATAS ( e, customer_tier_flow_m1[NextMonthKey] ),
+			    -- 列、欄對應到 FromTier/ToTier
+			    TREATAS ( fromAxis, customer_tier_flow_m1[FromTier] ),
+			    TREATAS ( toAxis,   customer_tier_flow_m1[ToTier] )
+			)
+		formatString: 0
+		lineageTag: 224b2c80-f515-4ac8-97e0-4c25e682d861
+
+	measure 'Flow % of Matrix' =
+			
+			DIVIDE (
+			    [Flow Customers],
+			    CALCULATE (
+			        [Flow Customers],
+			        REMOVEFILTERS ( 'Tier_From' ),
+			        REMOVEFILTERS ( 'Tier_To' )
+			    ),
+			    0
+			)
+		lineageTag: 9f24b47e-b0da-4eee-9851-7162705bc6eb
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Flow Customers (Boundary)' =
+			
+			VAR sKey = [StartMonthKey]      -- Current-1 的最後一個月（數字鍵）
+			VAR eKey = [EndMonthKey]        -- Current   的最後一個月（數字鍵）
+			
+			-- 允許用矩陣列/欄或 slicer 限定 From / To（可多選，可為空）
+			VAR fromAxis = VALUES ( 'Tier_From'[Tier from] )
+			VAR toAxis   = VALUES ( 'Tier_To'[Tier to] )
+			VAR wantFrom = SELECTEDVALUE ( 'Tier_From'[Tier from] )
+			VAR wantTo   = SELECTEDVALUE ( 'Tier_To'[Tier to] )
+			
+			-- 只取在目前 Geo/Channel/其他維度下出現過的客戶；移除 Tier 以免干擾邊界讀值
+			VAR baseCustomers =
+			    CALCULATETABLE (
+			        VALUES ( customer_tier_month[CustomerNK] ),
+			        REMOVEFILTERS ( customer_tier_month[Tier] )
+			    )
+			
+			-- 對每個客戶取邊界兩個月的 Tier，沒有就視為 "NoSpend"
+			VAR map =
+			    ADDCOLUMNS (
+			        baseCustomers,
+			        "FromTier",
+			            COALESCE (
+			                CALCULATE (
+			                    MAX ( customer_tier_month[Tier] ),
+			                    KEEPFILTERS ( customer_tier_month[MonthKey] = sKey ),
+			                    REMOVEFILTERS ( customer_tier_month[Tier] )
+			                ),
+			                "NoSpend"
+			            ),
+			        "ToTier",
+			            COALESCE (
+			                CALCULATE (
+			                    MAX ( customer_tier_month[Tier] ),
+			                    KEEPFILTERS ( customer_tier_month[MonthKey] = eKey ),
+			                    REMOVEFILTERS ( customer_tier_month[Tier] )
+			                ),
+			                "NoSpend"
+			            )
+			    )
+			
+			-- 套用矩陣列/欄 or slicer 的 From/To 篩選（皆可為空）
+			VAR bridged =
+			    FILTER (
+			        map,
+			        ( ISEMPTY ( fromAxis ) || CONTAINSROW ( fromAxis, [FromTier] ) ) &&
+			        ( ISEMPTY ( toAxis )   || CONTAINSROW ( toAxis,   [ToTier]   ) ) &&
+			        ( ISBLANK ( wantFrom ) || [FromTier] = wantFrom ) &&
+			        ( ISBLANK ( wantTo   ) || [ToTier]   = wantTo   )
+			    )
+			RETURN
+			    IF ( ISBLANK ( sKey ) || ISBLANK ( eKey ), BLANK (), COUNTROWS ( bridged ) )
+		formatString: 0
+		lineageTag: f667163d-e586-4c9b-8049-604f717ea359
+
+	measure 'Debug Start' = MINX(ALLSELECTED(PeriodStart), PeriodStart[MonthKey])
+		formatString: 0
+		lineageTag: 5b2042c6-77d9-4320-baf8-0cccffc9f26c
+
+	measure 'Debug End' = MINX(ALLSELECTED(PeriodEnd),   PeriodEnd[MonthKey])
+		formatString: 0
+		lineageTag: e1746e5f-b387-4be6-8055-b2239c95091f
+
+	measure 'Flow Customers (Total From)' = ```
+			
+			  CALCULATE ( [Flow Customers (Boundary)], REMOVEFILTERS ( 'Tier_To' ) )
+			```
+		formatString: 0
+		lineageTag: 13c6b404-a44a-4b25-ac51-ba350040a9a0
+
+	measure 'Flow Customers (Total To)' = ```
+			
+			  CALCULATE ( [Flow Customers (Boundary)], REMOVEFILTERS ( 'Tier_From' ) )
+			```
+		formatString: 0
+		lineageTag: 6ffce78e-2b2d-471c-8191-612d3ce6d52e
+
+	measure 'Flow % of Row' =
+			
+			DIVIDE (
+			    [Flow Customers (Boundary)],
+			    CALCULATE (
+			        [Flow Customers (Boundary)],
+			        REMOVEFILTERS ( 'Tier_To' )   -- 去除 ToTier 篩選，保留 FromTier
+			    )
+			)
+		lineageTag: 253a2457-0dde-4013-ad26-01afbdf7e425
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CustomerNK
+		dataType: string
+		lineageTag: 9b4ed8ac-cc42-4711-97d9-e8a3f05765e2
+		summarizeBy: none
+		sourceColumn: CustomerNK
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthKey
+		dataType: int64
+		formatString: 0
+		lineageTag: e43cee19-8234-477d-a51b-96757322d022
+		summarizeBy: none
+		sourceColumn: MonthKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column NextMonthKey
+		dataType: int64
+		formatString: 0
+		lineageTag: cbcf0c7d-3e64-4f51-9ea6-a70d0302c359
+		summarizeBy: count
+		sourceColumn: NextMonthKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column GeoGroup
+		dataType: string
+		lineageTag: 981725f5-8349-4d57-a17e-1f72636db31f
+		summarizeBy: none
+		sourceColumn: GeoGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistName
+		dataType: string
+		lineageTag: c1be1bad-4016-47e6-8935-81e2f5ea7a21
+		summarizeBy: none
+		sourceColumn: DistName
+
+		annotation SummarizationSetBy = Automatic
+
+	column FromSegment
+		dataType: string
+		lineageTag: b5d45c53-40da-48c8-969a-9616e26246e1
+		summarizeBy: none
+		sourceColumn: FromSegment
+
+		annotation SummarizationSetBy = Automatic
+
+	column ToSegment
+		dataType: string
+		lineageTag: a2f18b12-d7cb-4fce-be8c-7054e042af87
+		summarizeBy: none
+		sourceColumn: ToSegment
+
+		annotation SummarizationSetBy = Automatic
+
+	partition customer_tier_flow_m1 = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\customer_tier_flow_m1.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+

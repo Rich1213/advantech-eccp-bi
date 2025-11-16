@@ -1,0 +1,189 @@
+table productline_quadrant
+	lineageTag: 7ea50044-3b63-4ff7-bef6-eba047ec9b83
+
+	column ProductLine
+		dataType: string
+		lineageTag: cb14090a-0075-4443-93c1-d18c061cd846
+		summarizeBy: none
+		sourceColumn: ProductLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistName
+		dataType: string
+		lineageTag: 86e0ad50-82dd-43d0-8c9e-9fe452c69fb4
+		summarizeBy: none
+		sourceColumn: DistName
+
+		annotation SummarizationSetBy = Automatic
+
+	column GeoGroup
+		dataType: string
+		lineageTag: 3c0224cd-10db-47d0-bfcc-97da54d59dcd
+		summarizeBy: none
+		sourceColumn: GeoGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearQuarter
+		dataType: string
+		lineageTag: 485f22a9-db97-4ad9-bc22-c00b5e8bbfde
+		summarizeBy: none
+		sourceColumn: YearQuarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterKey
+		dataType: int64
+		formatString: 0
+		lineageTag: ae14468c-7c5d-4490-8f0b-e85e8ca48182
+		summarizeBy: count
+		sourceColumn: QuarterKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1f011b54-2aaa-4cad-badd-84c0378bf6cf
+		summarizeBy: none
+		sourceColumn: MonthEnd
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnnualGM
+		dataType: double
+		lineageTag: 4b4433df-4bd8-49c5-a2b4-fa1c30980b26
+		summarizeBy: sum
+		sourceColumn: AnnualGM
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column AnnualQty
+		dataType: double
+		lineageTag: d4a48dec-73ba-4b74-8d10-4621233d932c
+		summarizeBy: sum
+		sourceColumn: AnnualQty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column AnnualOrders
+		dataType: double
+		lineageTag: fe826363-0eb4-4e4c-906a-96139097302c
+		summarizeBy: sum
+		sourceColumn: AnnualOrders
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CV12
+		dataType: double
+		lineageTag: 0f4e6975-5e62-4dc6-8274-0227a58b2275
+		summarizeBy: sum
+		sourceColumn: CV12
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CV12_Orders
+		dataType: double
+		lineageTag: 4a57c334-4802-42bc-b807-ba35194726ad
+		summarizeBy: sum
+		sourceColumn: CV12_Orders
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ADI12
+		dataType: double
+		lineageTag: f2574689-10c6-4058-bdbd-4e746dd27199
+		summarizeBy: sum
+		sourceColumn: ADI12
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ABC_GM
+		dataType: string
+		lineageTag: 046d6b8e-f124-4b7c-870f-f370e9c562aa
+		summarizeBy: none
+		sourceColumn: ABC_GM
+
+		annotation SummarizationSetBy = Automatic
+
+	column ValueScore
+		dataType: double
+		lineageTag: d49de186-c53d-4bd3-aa01-2acea4555b57
+		summarizeBy: sum
+		sourceColumn: ValueScore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ValueScore_Qty
+		dataType: double
+		lineageTag: 9548de14-c235-4836-8bee-01ca08b7cbb8
+		summarizeBy: sum
+		sourceColumn: ValueScore_Qty
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ValueScore_Orders
+		dataType: double
+		lineageTag: f4ac4eee-e326-4d42-bb7d-3a8d0910495e
+		summarizeBy: sum
+		sourceColumn: ValueScore_Orders
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PredictabilityScore
+		dataType: double
+		lineageTag: e5a08b6f-bb05-42f1-b02d-bc83b3bca54e
+		summarizeBy: sum
+		sourceColumn: PredictabilityScore
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PredictabilityScore_Orders
+		dataType: double
+		lineageTag: 4a331fe2-a474-49ce-9f0c-8647b4acd9bf
+		summarizeBy: sum
+		sourceColumn: PredictabilityScore_Orders
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ProductGroupRoll
+		dataType: string
+		lineageTag: d2ca5a4a-9c4c-440a-8305-7aad825b86d6
+		summarizeBy: none
+		sourceColumn: ProductGroupRoll
+
+		annotation SummarizationSetBy = Automatic
+
+	partition productline_quadrant = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\agg\productline_quadrant.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+

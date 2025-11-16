@@ -1,0 +1,8 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "51bfedc0f79dbc82a746",
+  "displayName": "第 8 頁",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280
+}

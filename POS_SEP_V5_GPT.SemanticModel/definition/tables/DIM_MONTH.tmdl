@@ -1,0 +1,274 @@
+table DIM_MONTH
+	lineageTag: 57a52838-ebfa-4fbb-9937-5a2081e607fd
+
+	measure MonthEnd_Selected =
+			
+			MAX ( DIM_MONTH[MonthEnd] )
+		formatString: General Date
+		lineageTag: 49081e8e-195c-4096-89fd-f0be63403020
+
+	measure SnapshotDate =
+			
+			VAR _hasQ = HASONEVALUE ( DIM_MONTH[YearQuarter] )
+			VAR _hasY = HASONEVALUE ( DIM_MONTH[Year] )
+			RETURN
+			    SWITCH (
+			        TRUE(),
+			        // 選了單一季：取該季有資料的最後一個月份
+			        _hasQ, MAX ( DIM_MONTH[MonthEnd] ),
+			        // 選了單一年：取該年有資料的最後一個月份
+			        _hasY, MAX ( DIM_MONTH[MonthEnd] ),
+			        // 其餘情況：取目前範圍的最後一個月份
+			        MAX ( DIM_MONTH[MonthEnd] )
+			    )
+		formatString: General Date
+		lineageTag: c28928e0-e1ec-42b5-990b-cf7d18677927
+
+	measure ToDate =
+			
+			VAR EndMonth =
+			    MAX ( 'dim_month'[MonthEnd] )          -- 建議 MonthEnd 單選
+			RETURN
+			FILTER (
+			    ALL ( 'dim_month'[MonthEnd] ),         -- 清掉原本的日期濾器
+			    'dim_month'[MonthEnd] <= EndMonth      -- 只保留 <= EndMonth
+			)
+		formatString: General Date
+		lineageTag: 88a07ccc-14b3-4243-8c4c-fa5ca2a35775
+
+	column MonthEnd
+		formatString: Long Date
+		lineageTag: 08fb4e76-659e-423f-9883-3ec75b070953
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [MonthEnd]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		formatString: 0
+		lineageTag: 8bab46a3-8560-46f1-ad61-5ab1406fe15b
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		lineageTag: 51d54a0a-289c-4e66-8045-b6e866d35f12
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [YearMonth]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonthNum
+		formatString: 0
+		lineageTag: ff33f932-0e08-48ff-aed5-855b52e833f8
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [YearMonthNum]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Eng'
+		lineageTag: cb1e3990-d4f6-4919-8373-c0b703af1640
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Eng]
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterNo
+		formatString: 0
+		lineageTag: 04e0155c-fad2-4c9f-99b0-c0edc68db664
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [QuarterNo]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearQuarter
+		lineageTag: cdd74425-5405-49db-bafc-d40cb6c8d35c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [YearQuarter]
+		sortByColumn: QuarterKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterKey
+		formatString: 0
+		lineageTag: 713d68a8-7119-4525-9962-663d25f91548
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: [QuarterKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterStart
+		formatString: General Date
+		lineageTag: c27ed894-462b-4417-86e2-bd773cb3c96e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [QuarterStart]
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuarterEnd
+		formatString: General Date
+		lineageTag: 2b75a744-5261-477b-a0da-7d2fce9b2ebb
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [QuarterEnd]
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthKey
+		formatString: 0
+		lineageTag: 80f0255f-d7d4-4e2a-96d9-dfbf9b179171
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [MonthKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column PrevMonthKey
+		formatString: 0
+		lineageTag: 4b6f248e-2b62-4559-a251-5441319760be
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: [PrevMonthKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column NextMonthKey
+		formatString: 0
+		lineageTag: c27cae23-38e7-4c0e-85d9-b89e81980e40
+		summarizeBy: count
+		isNameInferred
+		sourceColumn: [NextMonthKey]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month
+		formatString: 0
+		lineageTag: a9e7dfe1-d68f-4133-8942-8fcdea4fc2dd
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthsFromMax
+		formatString: 0
+		lineageTag: 76f0843f-8b5a-4950-8fe3-a618896214a0
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [MonthsFromMax]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rolling12M_Index
+		formatString: 0
+		lineageTag: 5bcf4022-1290-4a6d-83f7-d90414ea9f4e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Rolling12M_Index]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rolling12M_Label
+		lineageTag: 66fef80b-bd8c-4b71-8700-1f348e0a0a0e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Rolling12M_Label]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearStart
+		formatString: General Date
+		lineageTag: e9a78e30-0b94-45ff-8877-c103effe8955
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [YearStart]
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearEnd
+		formatString: General Date
+		lineageTag: b7d9f4b1-8cfa-4630-833d-ecf4d1af6b4f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [YearEnd]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DIM_MONTH = calculated
+		mode: import
+		source =
+				
+				VAR src =
+				    ADDCOLUMNS (
+				        fact_clean,
+				        "Year",  YEAR ( fact_clean[POS_ShpDate] ),
+				        "Month", MONTH ( fact_clean[POS_ShpDate] )
+				    )
+				
+				-- 每年每月 → 取最後一筆「真實交易日」當作 MonthEnd（不會生出 2/29）
+				VAR base_raw =
+				    SUMMARIZE (
+				        src,
+				        [Year], [Month],
+				        "MonthEnd", MAX ( fact_clean[POS_ShpDate] )
+				    )
+				
+				-- 精簡成乾淨基底，避免帶著舊欄位進下一步
+				VAR base =
+				    SELECTCOLUMNS (
+				        base_raw,
+				        "Year",      [Year],
+				        "Month",     [Month],
+				        "MonthEnd",  [MonthEnd]
+				    )
+				
+				-- 最新一個月份（做 Rolling12M 差距用）
+				VAR maxM = MAXX ( base, [MonthEnd] )
+				
+				RETURN
+				ADDCOLUMNS (
+				    base,
+				
+				    /* ===== 月/季維度 ===== */
+				    "MonthKey",        [Year] * 100 + [Month],
+				    "Month Eng",       FORMAT ( [MonthEnd], "MMM" ),
+				    "YearMonth",       FORMAT ( [MonthEnd], "yyyy-MM" ),
+				    "YearMonthNum",    [Year] * 100 + [Month],
+				
+				    /* ===== 年度起訖 ===== */
+				    "YearStart", DATE ( [Year], 1, 1 ),
+				    "YearEnd",   EOMONTH ( DATE ( [Year], 12, 1 ), 0 ),
+				
+				    "QuarterNo",       QUARTER ( [MonthEnd] ),
+				    "YearQuarter",     FORMAT ( [MonthEnd], "yyyy" ) & " Q" & QUARTER ( [MonthEnd] ),
+				    "QuarterKey",      YEAR ( [MonthEnd] ) * 10 + QUARTER ( [MonthEnd] ),
+				    "QuarterStart",    DATE ( YEAR ( [MonthEnd] ), ( QUARTER ( [MonthEnd] ) - 1 ) * 3 + 1, 1 ),
+				    "QuarterEnd",      EOMONTH ( DATE ( YEAR ( [MonthEnd] ),
+				                                       ( QUARTER ( [MonthEnd] ) - 1 ) * 3 + 1, 1 ), 2 ),
+				
+				    /* ===== 前後月 Key（做對照好用） ===== */
+				    "PrevMonthKey",    YEAR ( EDATE ( [MonthEnd], -1 ) ) * 100 + MONTH ( EDATE ( [MonthEnd], -1 ) ),
+				    "NextMonthKey",    YEAR ( EDATE ( [MonthEnd],  1 ) ) * 100 + MONTH ( EDATE ( [MonthEnd],  1 ) ),
+				
+				    /* ===== Rolling12M ===== */
+				    "MonthsFromMax",   DATEDIFF ( [MonthEnd], maxM, MONTH ),
+				    "Rolling12M_Index", INT ( DIVIDE ( DATEDIFF ( [MonthEnd], maxM, MONTH ), 12, 0 ) ),
+				    "Rolling12M_Label",
+				        VAR idx = INT ( DIVIDE ( DATEDIFF ( [MonthEnd], maxM, MONTH ), 12, 0 ) )
+				        RETURN IF ( idx = 0, "Current", "Current-" & idx )
+				)
+
+	annotation PBI_Id = fc5c3373e10e4808bd10e5f71ecb044c
+

@@ -1,0 +1,27 @@
+table CohortTier
+	lineageTag: 2ef89ae3-640c-493d-9a34-7b0aec428011
+
+	column AnnualTier_ABC
+		lineageTag: f3514a62-7237-4de8-9148-eec5fd62e4fa
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [AnnualTier_ABC]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition CohortTier = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "AnnualTier_ABC", STRING,
+				    {
+				        {"Head"},
+				        {"Mid"},
+				        {"Tail"},
+				        {"NoSpend"}
+				    }
+				)
+
+	annotation PBI_Id = 66c282f458584e319a5c5cf0352963b7
+

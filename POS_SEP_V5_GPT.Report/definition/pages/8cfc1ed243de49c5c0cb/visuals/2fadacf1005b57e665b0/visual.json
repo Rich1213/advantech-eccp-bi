@@ -1,0 +1,105 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.3.0/schema.json",
+  "name": "2fadacf1005b57e665b0",
+  "position": {
+    "x": 485.21886287747139,
+    "y": 32.0497866416763,
+    "z": 1000,
+    "height": 319.00717866598734,
+    "width": 383.85209582472777,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "lineClusteredColumnComboChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "FACT_SALES_MONTH"
+                    }
+                  },
+                  "Property": "DistName"
+                }
+              },
+              "queryRef": "fact_clean_monthed.DistName",
+              "nativeQueryRef": "DistName",
+              "active": true
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DIM_MONTH"
+                    }
+                  },
+                  "Property": "Rolling12M_Label"
+                }
+              },
+              "queryRef": "DIM_MONTH.Rolling12M_Label",
+              "nativeQueryRef": "Rolling12M_Label"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0  MEASURES"
+                    }
+                  },
+                  "Property": "Active Customers (Rolling12M)"
+                }
+              },
+              "queryRef": "0  MEASURES.Active Customers (Rolling12M)",
+              "nativeQueryRef": "Active Customers (Rolling12M)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "FACT_SALES_MONTH"
+                  }
+                },
+                "Property": "DistName"
+              }
+            },
+            "direction": "Ascending"
+          },
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "DIM_MONTH"
+                  }
+                },
+                "Property": "Rolling12M_Label"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

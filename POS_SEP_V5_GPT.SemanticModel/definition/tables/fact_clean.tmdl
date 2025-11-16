@@ -1,0 +1,334 @@
+table fact_clean
+	lineageTag: f7f31123-5bb1-4cfc-9204-1b207bdbdd80
+
+	measure UnitPrice_FirstPurchase =
+			
+			VAR _m =
+			    [MonthEnd_Selected]                           -- 當前月份（月底）
+			VAR _mStart =
+			    DATE ( YEAR ( _m ), MONTH ( _m ), 1 )         -- 當月1號
+			VAR _mNext  =
+			    EDATE ( _mStart, 1 )                          -- 次月1號
+			
+			-- ① 取「當月新客」名單（只要 CustomerNK）
+			VAR _newCustList =
+			    CALCULATETABLE (
+			        VALUES ( customer_monthlyrfm[CustomerNK] ),
+			        customer_monthlyrfm[IsNew] = TRUE (),
+			        customer_monthlyrfm[MonthEnd] = _m
+			    )
+			
+			-- ② 限定在「當月 + 新客」的 fact 列（也排除 Qty ≤ 0）
+			VAR _factThisMonthForNew =
+			    CALCULATETABLE (
+			        fact_clean,
+			        fact_clean[POS_ShpDate] >= _mStart,
+			        fact_clean[POS_ShpDate] <  _mNext,
+			        fact_clean[Qty] > 0,
+			        TREATAS ( _newCustList, fact_clean[CustomerNK] )
+			    )
+			
+			-- ③ 先把同一天的多列，彙總成「客戶 × 日期」的天級交易（合計金額、合計數量）
+			VAR _dayAgg =
+			    SUMMARIZE (
+			        _factThisMonthForNew,
+			        fact_clean[CustomerNK],
+			        fact_clean[POS_ShpDate],
+			        "QtySum", SUM ( fact_clean[Qty] ),
+			        "ResSum", SUM ( fact_clean[ResExt] )
+			    )
+			
+			-- ④ 找出每位新客在「當月」的首購日期
+			VAR _firstDateByCust =
+			    SUMMARIZE (
+			        _dayAgg,
+			        [CustomerNK],
+			        "FirstDate", MIN ( [POS_ShpDate] )
+			    )
+			
+			-- ⑤ 只保留「首購那一天」的天級交易列
+			VAR _firstDayRows =
+			    FILTER (
+			        NATURALINNERJOIN ( _dayAgg, _firstDateByCust ),
+			        [POS_ShpDate] = [FirstDate]
+			    )
+			
+			-- ⑥ 加權單價 = SUM(金額)/SUM(數量)
+			VAR _den = SUMX ( _firstDayRows, [QtySum] )
+			VAR _num = SUMX ( _firstDayRows, [ResSum] )
+			RETURN
+			IF ( _den > 0, DIVIDE ( _num, _den ) )
+		lineageTag: e0d7dd56-4c18-4ff5-a744-43bb0dc6375b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure IsNew_in_Selected_Month =
+			
+			VAR month_ctx = MAX ( DIM_MONTH[MonthEnd] )
+			RETURN
+			CALCULATE (
+			    MAX ( customer_monthlyrfm[IsNew] ),
+			    TREATAS ( VALUES ( DIM_CUSTOMER[CustomerNK] ), customer_monthlyrfm[CustomerNK] ),
+			    TREATAS ( VALUES ( DIM_MONTH[MonthEnd] ),      customer_monthlyrfm[MonthEnd] )
+			)
+		formatString: 0
+		lineageTag: 389ba4e3-03e8-4f8c-9ff2-07a7ecf58745
+
+	measure TTLRevenue =
+			
+			SUM ( fact_clean[ResExt] )
+		lineageTag: 05b58a39-9e13-4f6a-b859-6745f1c3ec03
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure TTLQty =
+			
+			SUM ( fact_clean[Qty] )
+		formatString: 0
+		lineageTag: 639b5c99-522c-436a-b44a-2155d207a5f7
+
+	measure PDL_Rank_ByValue_12M =
+			
+			RANKX (
+			    ALL ( DIM_PRODUCT[ProductLine] ),     -- 對所有 PDL 做排名
+			    [NewCustomerValue_12M],               -- 依這個值排序
+			    ,
+			    DESC,
+			    DENSE
+			)
+		formatString: 0
+		lineageTag: 67077d4b-0d5c-4b3a-8c16-58688a96b5d1
+
+	measure 'Product Count' = COUNTROWS ( VALUES ( 'fact_clean'[ProductNK] ) )
+		formatString: 0
+		lineageTag: bb9c4eda-3311-452f-8b73-487770f67524
+
+	column CustName
+		dataType: string
+		lineageTag: 81d1560b-fb4f-4b41-a0b6-6bb15df974ea
+		summarizeBy: none
+		sourceColumn: CustName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustCty
+		dataType: string
+		lineageTag: 8c892264-9d27-4831-90c8-c0dea90d0a0b
+		summarizeBy: none
+		sourceColumn: CustCty
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustZIP
+		dataType: string
+		lineageTag: 1740473f-93d4-4833-b757-82b7ce05269f
+		summarizeBy: none
+		sourceColumn: CustZIP
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustSt
+		dataType: string
+		lineageTag: 7f2a930c-bd45-4da9-aefc-187bd56cc69b
+		summarizeBy: none
+		sourceColumn: CustSt
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChannelDistrict
+		dataType: string
+		lineageTag: bed2bc04-a8ae-4895-8b5d-66829a995dd0
+		summarizeBy: none
+		sourceColumn: ChannelDistrict
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChannelGeoGroup
+		dataType: string
+		lineageTag: 161701c0-1a81-4146-aa0f-a6973278a3fd
+		summarizeBy: none
+		sourceColumn: ChannelGeoGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerNK
+		dataType: string
+		lineageTag: 543f1b2b-9531-4735-be51-1bae1d90ff19
+		summarizeBy: none
+		sourceColumn: CustomerNK
+
+		annotation SummarizationSetBy = Automatic
+
+	column POS_ShpDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 2d4e16af-6921-44a2-9bf4-e298478ce069
+		summarizeBy: none
+		sourceColumn: POS_ShpDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column PtNo
+		dataType: string
+		lineageTag: 82fe0b8f-8f9c-4c4d-891e-5ade6929c8e7
+		summarizeBy: none
+		sourceColumn: PtNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column AdjPtNo
+		dataType: string
+		lineageTag: 2f459b3f-8d18-48f4-8446-fd8579e31fea
+		summarizeBy: none
+		sourceColumn: AdjPtNo
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistName
+		dataType: string
+		lineageTag: 8e217ad9-d473-404f-86fb-526bf967472b
+		summarizeBy: none
+		sourceColumn: DistName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CstExt
+		dataType: double
+		lineageTag: 42b488c5-6fdd-40b9-9c3a-87235665e235
+		summarizeBy: sum
+		sourceColumn: CstExt
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Double_UnitCst
+		dataType: double
+		lineageTag: f70d21b0-e218-4c45-ac02-db842bdb1faf
+		summarizeBy: sum
+		sourceColumn: Double_UnitCst
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Double_UnitResale
+		dataType: double
+		lineageTag: 2e46b9dc-e6ee-45f4-bc4c-a8d7295ebcae
+		summarizeBy: sum
+		sourceColumn: Double_UnitResale
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ResExt
+		dataType: double
+		lineageTag: 9275c8a6-a8b5-4c15-961f-f582ec88cc4f
+		summarizeBy: sum
+		sourceColumn: ResExt
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Qty
+		dataType: int64
+		formatString: 0
+		lineageTag: 9d78450b-2fb2-455d-8c92-d823a4ba3e3e
+		summarizeBy: sum
+		sourceColumn: Qty
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistType
+		dataType: string
+		lineageTag: 930433af-2258-436c-b558-6bc9f4e6fb57
+		summarizeBy: none
+		sourceColumn: DistType
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductNK
+		dataType: string
+		lineageTag: a10dfebd-a827-44c6-a867-527af0a13491
+		summarizeBy: none
+		sourceColumn: ProductNK
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice =
+			
+			DIVIDE( [TTLRevenue],[TTLQty] )
+		lineageTag: 6d0ff894-32c2-405a-980c-978c6942436a
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ProductLine
+		dataType: string
+		lineageTag: 3f52058a-4ebe-40a7-8dbd-7247297d99cb
+		summarizeBy: none
+		sourceColumn: ProductLine
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductDivision
+		dataType: string
+		lineageTag: 27f0fda2-2572-4720-b5e8-d0a51b5626a5
+		summarizeBy: none
+		sourceColumn: ProductDivision
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductGroup
+		dataType: string
+		lineageTag: e9249f62-f31a-4cc3-810f-7aae0492d63d
+		summarizeBy: none
+		sourceColumn: ProductGroup
+
+		annotation SummarizationSetBy = Automatic
+
+	column ProductGroupRoll
+		dataType: string
+		lineageTag: e1ea224a-151f-466c-8484-77de0a91554c
+		summarizeBy: none
+		sourceColumn: ProductGroupRoll
+
+		annotation SummarizationSetBy = Automatic
+
+	column UnitPrice_EA
+		dataType: double
+		lineageTag: cdda36aa-cad0-4882-9a48-4bf9114a0de5
+		summarizeBy: sum
+		sourceColumn: UnitPrice_EA
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MonthKey =
+			
+			EOMONTH ( fact_clean[POS_ShpDate], 0 )
+		formatString: General Date
+		lineageTag: e17b4dee-0104-4b9a-84f6-534e51a0acd9
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_clean = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\FACT_CLEAN.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = 導覽
+

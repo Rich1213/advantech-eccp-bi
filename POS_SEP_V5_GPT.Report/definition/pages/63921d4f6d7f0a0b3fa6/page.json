@@ -1,0 +1,15 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
+  "name": "63921d4f6d7f0a0b3fa6",
+  "displayName": "金字塔分析",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "visualInteractions": [
+    {
+      "source": "d8d2b88a141b2e9f0fa0",
+      "target": "61fd106002fa5487992d",
+      "type": "NoFilter"
+    }
+  ]
+}

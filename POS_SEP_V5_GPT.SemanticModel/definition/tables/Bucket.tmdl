@@ -1,0 +1,52 @@
+table Bucket
+	lineageTag: 359e848b-7504-4b6c-aedf-6a48e1f1a68c
+
+	measure Waterfall_Value =
+			
+			SWITCH (
+			    SELECTEDVALUE ( Bucket[Bucket] ),
+			    "Start (Current-1)", [Customers_Total_Previous],
+			    "Head",              [Delta_Head],
+			    "Mid",               [Delta_Mid],
+			    "Tail",              [Delta_Tail],
+			    "NoSpend",           [Delta_NoSpend],
+			    BLANK()   -- 其餘（包含 End）都不回傳
+			)
+		formatString: 0
+		lineageTag: 2487d701-6cb7-4ef5-9ebd-30b3bbac6b1a
+
+	column Bucket
+		lineageTag: 903543f5-59ef-47b8-b642-98299110344e
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Bucket]
+		sortByColumn: Order
+
+		annotation SummarizationSetBy = Automatic
+
+	column Order
+		formatString: 0
+		lineageTag: c3ebf9ea-8666-48fc-ada0-c00de6fb7be8
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Order]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Bucket = calculated
+		mode: import
+		source =
+				
+				DATATABLE (
+				    "Bucket", STRING, "Order", INTEGER,
+				    {
+				        { "Start (Current-1)", 1 },
+				        { "Head",              2 },
+				        { "Mid",               3 },
+				        { "Tail",              4 },
+				        { "NoSpend",           5 }
+				    }
+				)
+
+	annotation PBI_Id = d79019ab7f994a4db1547f2b4f303c8c
+

@@ -1,0 +1,2081 @@
+table customer_monthlyrfm
+	lineageTag: c8ecffae-7dbc-47fa-a119-6e2944548f36
+
+	measure CustomerCount =
+			
+			DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] )
+		formatString: 0
+		lineageTag: 791e1bcb-836f-4b65-b434-8d236f959573
+
+		changedProperty = IsHidden
+
+	measure 'Ordering Customers LY' =
+			
+			CALCULATE(
+			    [CustomerCount],
+			    DATEADD( DIM_MONTH[MonthEnd], -12, MONTH )
+			)
+		formatString: 0
+		lineageTag: cf30d57b-da46-4f4b-ac96-0211ed8da26b
+
+		changedProperty = IsHidden
+
+	measure 'CustomerCount YoY %' =
+			
+			VAR cur = [CustomerCount]
+			VAR ly  = [Ordering Customers LY]
+			RETURN
+			IF(
+			    NOT ISBLANK(ly) && ly <> 0,
+			    DIVIDE( cur - ly, ly ),
+			    BLANK()
+			)
+		lineageTag: ee20e565-68d0-4c2e-a459-c5ccdec56115
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure NewCustomerCount =
+			
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm[IsNew] = TRUE() ),
+			    KEEPFILTERS ( customer_monthlyrfm[OrderCount] > 0 )
+			)
+		formatString: 0
+		lineageTag: 568e334f-19f3-42b1-afc7-d9d331320e10
+
+		changedProperty = IsHidden
+
+	measure 'New Customers 12M Growth %' =
+			
+			VAR MaxDate =
+			    CALCULATE( MAX( DIM_MONTH[MonthEnd] ), ALLSELECTED( DIM_MONTH ) )
+			    // 取得目前範圍（含切頁/切分區）的最後一個月月底
+			VAR CurStart =
+			    EOMONTH ( MaxDate, -11 )          // 最近 12 個月的起點（含當月，共 12 個月）
+			VAR Cur12M =
+			    CALCULATE (
+			        [NewCustomerCount],
+			        DATESBETWEEN ( DIM_MONTH[MonthEnd], CurStart, MaxDate )
+			    )
+			VAR PrevStart =
+			    EOMONTH ( MaxDate, -23 )          // 上一個 12 個月的起點
+			VAR PrevEnd =
+			    EOMONTH ( MaxDate, -12 )          // 上一個 12 個月的終點
+			VAR Prev12M =
+			    CALCULATE (
+			        [NewCustomerCount],
+			        DATESBETWEEN ( DIM_MONTH[MonthEnd], PrevStart, PrevEnd )
+			    )
+			RETURN
+			    IF (
+			        NOT ISBLANK ( Prev12M ) && Prev12M > 0,
+			        DIVIDE ( Cur12M - Prev12M, Prev12M ),   -- 成長率
+			        BLANK ()
+			    )
+		lineageTag: a4348476-5ab3-4293-b858-d4e4ed51756f
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure NewCustomerSales =
+			
+			CALCULATE (
+			    SUM ( customer_monthlyrfm[NetSalesM] ),
+			    KEEPFILTERS ( customer_monthlyrfm[IsNew] = TRUE() )
+			)
+		lineageTag: 48d660d2-065f-4191-8166-49adff8f6d4a
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'New Customers 12M Sales Growth %' =
+			
+			VAR MaxDate =
+			    CALCULATE( MAX( DIM_MONTH[MonthEnd] ), ALLSELECTED( DIM_MONTH ) )
+			VAR CurStart = EOMONTH( MaxDate, -11 )          -- 最近 12 個月的起點（含當月，共 12 個月）
+			
+			VAR Cur12M_Sales =
+			    CALCULATE(
+			        [NewCustomerSales],
+			        DATESBETWEEN( DIM_MONTH[MonthEnd], CurStart, MaxDate )
+			    )
+			
+			VAR PrevStart = EOMONTH( MaxDate, -23 )         -- 上一個 12 個月的起點
+			VAR PrevEnd   = EOMONTH( MaxDate, -12 )         -- 上一個 12 個月的終點
+			
+			VAR Prev12M_Sales =
+			    CALCULATE(
+			        [NewCustomerSales],
+			        DATESBETWEEN( DIM_MONTH[MonthEnd], PrevStart, PrevEnd )
+			    )
+			RETURN
+			    IF(
+			        NOT ISBLANK( Prev12M_Sales ) && Prev12M_Sales > 0,
+			        DIVIDE( Cur12M_Sales - Prev12M_Sales, Prev12M_Sales ),
+			        BLANK()
+			    )
+		lineageTag: 0968975c-ef36-4703-9c6e-22c099516456
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure NewCustomerCount_2024 =
+			
+			VAR Cutoff = DATE ( 2024, 1, 1 )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    customer_monthlyrfm[IsNew] = TRUE(),
+			    KEEPFILTERS (
+			        FILTER (
+			            ALL ( customer_monthlyrfm[FirstPurchaseMonth] ),
+			            customer_monthlyrfm[FirstPurchaseMonth] >= Cutoff
+			        )
+			    )
+			)
+		formatString: 0
+		lineageTag: 54dbc16a-b2cb-484d-9b35-d7456eecbfd0
+
+		changedProperty = IsHidden
+
+	measure NewCustomerRatio =
+			
+			DIVIDE ( [NewCustomerCount], [CustomerCount] )
+		lineageTag: dc210bb5-d96f-426f-a1d2-5a3e94baae75
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure NewCustomerSalesRatio =
+			
+			DIVIDE ( [NewCustomerSales], SUM ( customer_monthlyrfm[NetSalesM] ) )
+		lineageTag: 05fe847e-aabf-4ef7-8cb4-4f9dd58ad9fd
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure ReturningCustomerCount =
+			
+			[CustomerCount] - [NewCustomerCount]
+		formatString: 0
+		lineageTag: eda30189-d933-4099-b803-b1cdd49d5db4
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Customers' =
+			
+			DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] )
+		formatString: 0
+		lineageTag: c21fef88-76f1-4b02-a76f-9f09d349dffb
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Retention %' =
+			
+			DIVIDE ( [Cohort Count], [Cohort Base] )
+		lineageTag: e8370976-7a29-4bf9-9fb6-eb08303f14d0
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cohort Base (customers)' =
+			
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm[MonthsSinceFirst] = 0 )
+			)
+		formatString: 0
+		lineageTag: 310dfa8c-c17f-4277-9507-ac088dc99b7d
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Active' =
+			
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm[OrderCount] > 0 )
+			)
+		formatString: 0
+		lineageTag: c63a4e61-714f-4f4e-b5cf-ef39c8fdbec1
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Active Customers' = ```
+			
+			VAR _msf    = MAX ( customer_monthlyrfm[MonthsSinceFirst] )
+			VAR _cohort = MAX ( customer_monthlyrfm[CohortMonth] )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    customer_monthlyrfm[CohortMonth] = _cohort,
+			    customer_monthlyrfm[MonthsSinceFirst] = _msf,
+			    customer_monthlyrfm[OrderCount] > 0,
+			    REMOVEFILTERS ( DIM_MONTH )
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 40f39225-5270-4391-9764-50d603be16f5
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Active (Count)' =
+			
+			VAR CohortMonth_ = SELECTEDVALUE( customer_monthlyrfm[CohortMonth] )
+			VAR Offset_      = SELECTEDVALUE( customer_monthlyrfm[MonthsSinceFirst] )
+			RETURN
+			CALCULATE(
+			    DISTINCTCOUNT( customer_monthlyrfm[CustomerNK] ),
+			    KEEPFILTERS( customer_monthlyrfm[FirstPurchaseMonth] = CohortMonth_ ),
+			    KEEPFILTERS( customer_monthlyrfm[MonthsSinceFirst] = Offset_ ),
+			    KEEPFILTERS( customer_monthlyrfm[OrderCount] > 0 )
+			)
+		formatString: 0
+		lineageTag: fa9fbaae-2e0f-4abe-9248-6fe038acdb60
+
+		changedProperty = IsHidden
+
+	measure NewCustomersCount_SelectedMonth =
+			
+			VAR _m =
+			    [MonthEnd_Selected]                       -- 一個 Date
+			VAR _newCustList =
+			    CALCULATETABLE (
+			        VALUES ( customer_monthlyrfm[CustomerNK] ),
+			        customer_monthlyrfm[IsNew] = TRUE (), -- 用 TRUE()，不要 = 1
+			        customer_monthlyrfm[MonthEnd] = _m    -- 當月新客
+			    )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( fact_clean[CustomerNK] ),
+			    TREATAS ( _newCustList, fact_clean[CustomerNK] )
+			)
+		formatString: 0
+		lineageTag: 674a0b1b-77d9-45a2-8e33-c36acb47c5b7
+
+		changedProperty = IsHidden
+
+	measure NewCustomerValue_12M =
+			
+			VAR _m = [MonthEnd_Selected]
+			VAR _newCustList =
+			    CALCULATETABLE (
+			        VALUES ( customer_monthlyrfm[CustomerNK] ),
+			        customer_monthlyrfm[IsNew] = TRUE (),
+			        customer_monthlyrfm[MonthEnd] = _m
+			    )
+			RETURN
+			CALCULATE (
+			    SUM ( fact_clean[ResExt] ),
+			    TREATAS ( _newCustList, fact_clean[CustomerNK] ),
+			    DATESINPERIOD (
+			        fact_clean[POS_ShpDate],
+			        _m,
+			        12,
+			        MONTH
+			    )
+			)
+		lineageTag: c00ee48b-4b0f-49f6-b89e-7bca6c5ed2a8
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Customers_Total_Current =
+			
+			VAR _cur = [Anchor_CurrentMonth]
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    REMOVEFILTERS ( customer_monthlyrfm[MonthEnd] ),
+			    TREATAS ( { _cur }, customer_monthlyrfm[MonthEnd] )
+			)
+		formatString: 0
+		lineageTag: 184428e3-53c8-4e90-850e-c3125f7cafbe
+
+		changedProperty = IsHidden
+
+	measure Customers_Total_Previous =
+			
+			VAR _prev = [Anchor_PreviousMonth]
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    REMOVEFILTERS ( customer_monthlyrfm[MonthEnd] ),
+			    TREATAS ( { _prev }, customer_monthlyrfm[MonthEnd] )
+			)
+		formatString: 0
+		lineageTag: da5c02ce-305c-45c3-a0d2-3261a2cc42a9
+
+		changedProperty = IsHidden
+
+	measure Customers_ByTier =
+			
+			VAR _cur = [Anchor_CurrentMonth]
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    REMOVEFILTERS ( customer_monthlyrfm[MonthEnd] ),
+			    TREATAS ( { _cur }, customer_monthlyrfm[MonthEnd] )
+			)
+		formatString: 0
+		lineageTag: bdab305f-539f-4684-80db-55f1ffe0b7bb
+
+		changedProperty = IsHidden
+
+	measure Anchor_CurrentMonth = ```
+			
+			CALCULATE ( MAX ( customer_monthlyrfm[MonthEnd] ), ALL ( customer_monthlyrfm[MonthEnd] ) )
+			
+			```
+		formatString: General Date
+		lineageTag: 5d8d8835-553b-44a8-88fc-4f3c743cd862
+
+		changedProperty = IsHidden
+
+	measure Anchor_PreviousMonth =
+			
+			EOMONTH ( [Anchor_CurrentMonth], -1 )
+		formatString: General Date
+		lineageTag: f7ee450a-e52c-43a8-aac0-cee3ac3694c2
+
+		changedProperty = IsHidden
+
+	measure ActiveWindow_Label =
+			
+			VAR idx    = SELECTEDVALUE ( customer_monthlyrfm[Rolling12M_Index], 0 )
+			VAR anchor = CALCULATE ( MAX ( customer_monthlyrfm[MonthEnd] ), ALL ( customer_monthlyrfm ) )
+			VAR e1     = EOMONTH ( anchor, -12 * ( idx + 1 ) ) + 1
+			VAR e2     = EOMONTH ( anchor, -12 * idx )
+			RETURN FORMAT ( e1, "yyyy-MM" ) & " ~ " & FORMAT ( e2, "yyyy-MM" )
+		lineageTag: 738d3b03-7fa9-42d7-b6b3-df0c0fead5d8
+
+		changedProperty = IsHidden
+
+	measure ActiveCustomers_Tier_Q =
+			
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    customer_monthlyrfm[OrderCount] > 0    -- Active 定義
+			)
+		formatString: 0
+		lineageTag: 4f4f293e-c915-4913-998b-6f6da1232f22
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Base (Month0)' =
+			
+			VAR _cohort =
+			    SELECTEDVALUE ( customer_monthlyrfm[CohortMonth] )   -- 目前這一列的 Cohort
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    -- 鎖定這一列 Cohort（保留其他 slicer：Tier/Geo/Channel…）
+			    KEEPFILTERS ( customer_monthlyrfm[CohortMonth] = _cohort ),
+			    -- 第 0 月
+			    KEEPFILTERS ( customer_monthlyrfm[MonthsSinceFirst] = 0 ),
+			    -- 當月有下單（>0）
+			    KEEPFILTERS ( customer_monthlyrfm[OrderCount] > 0 )
+			)
+		formatString: 0
+		lineageTag: 19b6f26e-c398-4d1a-b44c-3b8ea46efd2a
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Count (m)' =
+			
+			VAR _cohort =
+			    SELECTEDVALUE ( customer_monthlyrfm[CohortMonth] )
+			VAR _m =
+			    SELECTEDVALUE ( customer_monthlyrfm[MonthsSinceFirst] )   -- 目前這一欄的 m
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm[CohortMonth] = _cohort ),
+			    KEEPFILTERS ( customer_monthlyrfm[MonthsSinceFirst] = _m ),
+			    KEEPFILTERS ( customer_monthlyrfm[OrderCount] > 0 )
+			)
+		formatString: 0
+		lineageTag: 9a59388e-7ad7-480a-85d1-9c44c15670c9
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Base' =
+			
+			VAR _cohort = SELECTEDVALUE ( customer_monthlyrfm[CohortMonth] )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm[CohortMonth] = _cohort ),
+			    FILTER (
+			        ALL ( customer_monthlyrfm[MonthsSinceFirst], customer_monthlyrfm[OrderCount] ),
+			        customer_monthlyrfm[MonthsSinceFirst] = 0
+			            && customer_monthlyrfm[OrderCount] > 0
+			    )
+			)
+		formatString: 0
+		lineageTag: 948fd143-7e3b-4426-a0be-a6034438c7f1
+
+		changedProperty = IsHidden
+
+	measure 'Cohort Count' = ```
+			
+			VAR _cohort = SELECTEDVALUE ( customer_monthlyrfm[CohortMonth] )
+			VAR _m      = SELECTEDVALUE ( cohort_axis[Value], 0 )          -- ← 作法 B 請改為 cohort_axis[Value]
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm[CohortMonth] = _cohort ),
+			    FILTER (
+			        ALL ( customer_monthlyrfm[MonthsSinceFirst], customer_monthlyrfm[OrderCount] ),
+			        customer_monthlyrfm[MonthsSinceFirst] = _m
+			            && customer_monthlyrfm[OrderCount] > 0
+			    )
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 916a1af0-5e9e-4ca6-937c-ad92c9a62fe8
+
+		changedProperty = IsHidden
+
+	measure TotalMonthlySales = SUM(customer_monthlyrfm[MonthlySales])
+		lineageTag: 3299ec8e-cce0-4207-a9b0-839fee14e668
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Sales_Current =
+			
+			CALCULATE(
+			    [TotalMonthlySales],
+			    FILTER(
+			        customer_monthlyrfm,
+			        customer_monthlyrfm[Rolling12M_Label] = "Current"
+			    )
+			)
+		lineageTag: c599354e-7343-4c6f-936b-e091005967ab
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Sales_Current_1 =
+			
+			CALCULATE(
+			    [TotalMonthlySales],
+			    FILTER(
+			        customer_monthlyrfm,
+			        customer_monthlyrfm[Rolling12M_Label] = "Current-1"
+			    )
+			)
+		lineageTag: fc32767d-4ca3-4344-957c-58badb42ba75
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure SalesGrowthRate =
+			
+			DIVIDE([Sales_Current] - [Sales_Current_1], [Sales_Current_1], 0)
+		lineageTag: ffe2ba54-b738-460b-925a-c54529c079a0
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Selected Cohort Period' =
+			
+			COALESCE( SELECTEDVALUE ( CohortPeriod[Label] ), "Current-1" )
+		lineageTag: 76a460ac-501a-4051-9931-ec593125792b
+
+		changedProperty = IsHidden
+
+	measure '_Selected To Period' =
+			
+			SELECTEDVALUE ( ToPeriod[Rolling12M_Label], "Current" )
+		lineageTag: 63301d9e-f047-4623-877c-64deef7cb60d
+
+		changedProperty = IsHidden
+
+	measure 'Boundary MonthKey' =
+			
+			VAR _label =
+			    // 只用資料表中的欄位，不引用任何斷開表，避免報錯
+			    COALESCE ( SELECTEDVALUE ( customer_monthlyrfm[Rolling12M_Label] ), "Current" )
+			
+			VAR _endKey    = [EndMonthKey]      // 例如：202507
+			VAR _startKey  = [StartMonthKey]    // 例如：202406
+			
+			// 把 StartMonthKey 轉成日期（每月第一天）
+			VAR _startDt   = DATE ( INT ( _startKey / 100 ), MOD ( _startKey, 100 ), 1 )
+			
+			// Current-2 = StartMonthKey 再往前 12 個月（轉回 YYYYMM）
+			VAR _prev2Key  = YEAR ( EOMONTH ( _startDt, -12 ) ) * 100
+			               + MONTH( EOMONTH ( _startDt, -12 ) )
+			
+			RETURN
+			    SWITCH (
+			        _label,
+			        "Current",   _endKey,
+			        "Current-1", _startKey,
+			        "Current-2", _prev2Key,
+			        BLANK()
+			    )
+		formatString: 0
+		lineageTag: 2e118870-7f82-47a4-90c5-26b0640ccda2
+
+		changedProperty = IsHidden
+
+	measure 'Boundary MonthDate' =
+			
+			VAR _maxEnd =
+			    CALCULATE ( MAX ( customer_monthlyrfm_global[MonthEnd] ),
+			                ALL ( customer_monthlyrfm_global ) )
+			VAR _idx = COALESCE ( SELECTEDVALUE ( Rolling12M[Index] ), 0 )   -- 0/1/2
+			RETURN
+			    EOMONTH ( _maxEnd, -12 * _idx )
+		formatString: General Date
+		lineageTag: 1366caec-9bd9-4da5-a419-4e4f52d6e3f0
+
+		changedProperty = IsHidden
+
+	measure 'Boundary Active (Sum of Tiers)' =
+			
+			VAR _end   = [Boundary MonthDate]              -- 邊界月月底
+			VAR _start = EOMONTH(_end, -11)                -- 含當月的近 12 個月
+			VAR _custInScope =
+			    CALCULATETABLE( VALUES(DIM_CUSTOMER[CustomerNK]) )
+			RETURN
+			IF (
+			    ISBLANK(_end),
+			    BLANK(),
+			    CALCULATE(
+			        DISTINCTCOUNT( customer_monthlyrfm[CustomerNK] ),
+			        TREATAS( _custInScope, customer_monthlyrfm[CustomerNK] ),
+			        FILTER(
+			            customer_monthlyrfm,
+			            customer_monthlyrfm[MonthEnd] >= _start &&
+			            customer_monthlyrfm[MonthEnd] <= _end &&
+			            customer_monthlyrfm[OrderCount] > 0        -- 12M 內任一月有下單
+			        )
+			    )
+			)
+		formatString: 0
+		lineageTag: 742724fd-77fe-4dcb-a816-3103135df6cd
+
+		changedProperty = IsHidden
+
+	measure TotalCustomers_Current = ```
+			
+			VAR _end0 =
+			    CALCULATE ( [Boundary MonthDate], FILTER ( ALL ( Rolling12M ), Rolling12M[Index] = 0 ) )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm_global[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm_global[MonthEnd] = _end0 )
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 502a22db-a1dc-42a5-bbdc-e13ed25497c5
+
+		changedProperty = IsHidden
+
+	measure TotalCustomers_Prev1 =
+			
+			VAR _end1 =
+			    CALCULATE ( [Boundary MonthDate], FILTER ( ALL ( Rolling12M ), Rolling12M[Index] = 1 ) )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm_global[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm_global[MonthEnd] = _end1 )
+			)
+		formatString: 0
+		lineageTag: 63010a13-1413-4a93-b85e-b3c3751dd4e5
+
+		changedProperty = IsHidden
+
+	measure TotalCustomers_Prev2 =
+			
+			VAR _end2 =
+			    CALCULATE ( [Boundary MonthDate], FILTER ( ALL ( Rolling12M ), Rolling12M[Index] = 2 ) )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( customer_monthlyrfm_global[CustomerNK] ),
+			    KEEPFILTERS ( customer_monthlyrfm_global[MonthEnd] = _end2 )
+			)
+		formatString: 0
+		lineageTag: 4a2e8fb3-6ddc-41d1-b441-c3d8893a35ee
+
+		changedProperty = IsHidden
+
+	measure CustomerGrowthRate =
+			
+			VAR cur = [TotalCustomers_Current]
+			VAR pre = [TotalCustomers_Prev1]
+			RETURN
+			IF (
+			    NOT ISBLANK(pre),
+			    DIVIDE(cur, pre, BLANK()) - 1,
+			    BLANK()
+			)
+		lineageTag: 1e3c2fbc-a133-4f0e-8e55-927ca18bc067
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure NewCustomers_ByCohort =
+			
+			CALCULATE(
+			    DISTINCTCOUNT( customer_monthlyrfm[CustomerNK] ),
+			    KEEPFILTERS( customer_monthlyrfm[IsNew] = TRUE() )
+			)
+		formatString: 0
+		lineageTag: a475d5a2-28ac-45e0-99a3-2e124935e853
+
+		changedProperty = IsHidden
+
+	measure Sales_12M_Current = ```
+			
+			CALCULATE (
+			    [TTLRevenue],
+			    KEEPFILTERS ( DIM_MONTH[Rolling12M_Label] = "Current" )
+			)
+			
+			```
+		lineageTag: e56dc964-812b-4c3e-bb96-0a466176e147
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Sales_12M_Prev1 =
+			
+			CALCULATE (
+			    [TTLRevenue],
+			    KEEPFILTERS ( DIM_MONTH[Rolling12M_Label] = "Current-1" )
+			)
+		lineageTag: e9814fab-f346-4f0d-8391-35b6ff56b1fb
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Sales_12M_Current_ByPDL =
+			
+			[Sales_12M_Current]   -- 有把 ProductLine 放在 Breakdown 就會自動按 PDL 聚合
+		lineageTag: 54840491-051f-4713-bc94-ca3052f9b877
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Sales_12M_Prev1_ByPDL =
+			
+			[Sales_12M_Prev1]
+		lineageTag: 2751716f-adb4-4635-8a2d-f1fe58573c51
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'ActiveCustomers Growth %' =
+			
+			VAR curIdx =
+			    MINX (
+			        VALUES ( customer_monthlyrfm[Rolling12M_Index] ),
+			        customer_monthlyrfm[Rolling12M_Index]
+			    )
+			VAR curVal =
+			    CALCULATE (
+			        [ActiveCustomers_Tier_Q],
+			        REMOVEFILTERS (
+			            customer_monthlyrfm[Rolling12M_Label],
+			            customer_monthlyrfm[Rolling12M_Index]
+			        ),
+			        customer_monthlyrfm[Rolling12M_Index] = curIdx
+			    )
+			VAR prevVal =
+			    CALCULATE (
+			        [ActiveCustomers_Tier_Q],
+			        REMOVEFILTERS (
+			            customer_monthlyrfm[Rolling12M_Label],
+			            customer_monthlyrfm[Rolling12M_Index]
+			        ),
+			        customer_monthlyrfm[Rolling12M_Index] = curIdx + 1
+			    )
+			RETURN
+			IF ( ISBLANK ( prevVal ), BLANK (), DIVIDE ( curVal - prevVal, prevVal ) )
+		lineageTag: fcf867c3-8827-4099-8a73-944d2449793a
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Repurchase Stability %' =
+			
+			AVERAGEX (
+			    VALUES ( customer_monthlyrfm[CustomerNK] ),
+			    DIVIDE ( MAX ( customer_monthlyrfm[Freq12M] ), 12 )
+			)
+		lineageTag: a965e4e9-e078-4f7a-89b6-a29f3fcb1200
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Customer Share (% in Selection)' =
+			
+			VAR m = SELECTEDVALUE('customer_monthlyrfm'[MonthEnd])
+			
+			-- 分子：目前列（群組）內的客數
+			VAR Numerator =
+			    CALCULATE(
+			        [Customer Count (Distinct)],
+			        'customer_monthlyrfm'[MonthEnd] = m
+			    )
+			
+			-- 依視覺上使用的欄位來決定分母要用哪個 ALLSELECTED
+			VAR Denominator =
+			    SWITCH(
+			        TRUE(),
+			        ISINSCOPE('customer_monthlyrfm'[RFM_NameZh]),
+			            CALCULATE(
+			                [Customer Count (Distinct)],
+			                ALLSELECTED('customer_monthlyrfm'[RFM_NameZh]),
+			                'customer_monthlyrfm'[MonthEnd] = m
+			            ),
+			        ISINSCOPE('customer_monthlyrfm'[RFM_NameEn]),
+			            CALCULATE(
+			                [Customer Count (Distinct)],
+			                ALLSELECTED('customer_monthlyrfm'[RFM_NameEn]),
+			                'customer_monthlyrfm'[MonthEnd] = m
+			            ),
+			        -- 預設用 RFM_Segment
+			        CALCULATE(
+			            [Customer Count (Distinct)],
+			            ALLSELECTED('customer_monthlyrfm'[RFM_Segment]),
+			            'customer_monthlyrfm'[MonthEnd] = m
+			        )
+			    )
+			
+			RETURN
+			DIVIDE(Numerator, Denominator)
+		lineageTag: 8a382487-4997-42de-9fe4-d7cd81fe7b7e
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Customer Count (Distinct)' =
+			
+			VAR m = SELECTEDVALUE('customer_monthlyrfm'[MonthEnd])
+			RETURN
+			CALCULATE(
+			    DISTINCTCOUNT('customer_monthlyrfm'[CustomerNK]),
+			    'customer_monthlyrfm'[MonthEnd] = m
+			)
+		formatString: 0
+		lineageTag: 1430dcfe-2a9f-4699-8671-d951db3477e5
+
+		changedProperty = IsHidden
+
+	measure 'GM 12M' =
+			
+			VAR m = [Selected MonthEnd]
+			RETURN
+			CALCULATE (
+			    SUM ( 'customer_monthlyrfm'[AnnualValue] ),
+			    KEEPFILTERS ( 'customer_monthlyrfm'[MonthEnd] = m )
+			    -- 如需排除 NoSpend 再加下面這行（可選）
+			    -- , KEEPFILTERS('customer_monthlyrfm'[AnnualValue] > 0)
+			)
+		lineageTag: a92556f3-6405-4d8a-960e-0fd0ecfd5fce
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'GM 12M Share (% in Selection)' =
+			
+			VAR m = SELECTEDVALUE('customer_monthlyrfm'[MonthEnd])
+			
+			-- 分子：該切片下、當前群組的12M金額
+			VAR Numerator =
+			    CALCULATE(
+			        [GM 12M],
+			        'customer_monthlyrfm'[MonthEnd] = m
+			    )
+			
+			-- 分母：依你在視覺上採用的欄位動態決定（NameZh / NameEn / Segment）
+			VAR Denominator =
+			    SWITCH(
+			        TRUE(),
+			        ISINSCOPE('customer_monthlyrfm'[RFM_NameZh]),
+			            CALCULATE([GM 12M],
+			                ALLSELECTED('customer_monthlyrfm'[RFM_NameZh]),
+			                'customer_monthlyrfm'[MonthEnd] = m
+			            ),
+			        ISINSCOPE('customer_monthlyrfm'[RFM_NameEn]),
+			            CALCULATE([GM 12M],
+			                ALLSELECTED('customer_monthlyrfm'[RFM_NameEn]),
+			                'customer_monthlyrfm'[MonthEnd] = m
+			            ),
+			        -- 預設用原始 27 分群鍵
+			        CALCULATE([GM 12M],
+			            ALLSELECTED('customer_monthlyrfm'[RFM_Segment]),
+			            'customer_monthlyrfm'[MonthEnd] = m
+			        )
+			    )
+			RETURN DIVIDE(Numerator, Denominator)
+		lineageTag: 77f2d2e3-cfe4-4a86-a355-917f1535fd3b
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure ActiveFreq12M =
+			
+			IF(
+			    MAX('customer_monthlyrfm'[Freq12M]) > 0,
+			    1,
+			    0
+			)
+		formatString: 0
+		lineageTag: 952bb25d-7238-43c4-b603-e26d5d31ce2c
+
+		changedProperty = IsHidden
+
+	measure LatestMonthEnd = CALCULATE(MAX('customer_monthlyrfm'[MonthEnd]), ALL('customer_monthlyrfm'))
+		formatString: General Date
+		lineageTag: a0929ef5-a3b7-4049-8f89-28a015ece096
+
+		changedProperty = IsHidden
+
+	measure SelectedMonthEnd =
+			
+			SELECTEDVALUE ( 'customer_monthlyrfm'[MonthEnd], MAX ( 'customer_monthlyrfm'[MonthEnd] ) )
+		formatString: General Date
+		lineageTag: 6f6e9ee6-100b-40fe-b6b1-2103629b8ea7
+
+		changedProperty = IsHidden
+
+	measure IsSelectedMonth =
+			
+			VAR me = [SelectedMonthEnd]
+			RETURN IF ( MAX ( 'customer_monthlyrfm'[MonthEnd] ) = me, 1, 0 )
+		formatString: 0
+		lineageTag: 4d02e798-7771-44cd-ba10-149caae9931c
+
+		changedProperty = IsHidden
+
+	measure Active12M =
+			
+			IF (
+			    MAX ( 'customer_monthlyrfm'[AnnualValue] ) > 0
+			        || MAX ( 'customer_monthlyrfm'[Freq12M] ) > 0,
+			    1, 0
+			)
+		formatString: 0
+		lineageTag: b96fb99e-d3cb-4500-bcf1-e5236d857622
+
+		changedProperty = IsHidden
+
+	measure HasAOV12M =
+			
+			IF ( MAX ( 'customer_monthlyrfm'[AvgOrderValue12M] ) > 0, 1, 0 )
+		formatString: 0
+		lineageTag: cba228d8-ad01-4e41-9a00-51be9e3cebf3
+
+		changedProperty = IsHidden
+
+	measure 'RFM Sales Diff 12M' =
+			
+			[RFM Sales TY 12M] - [RFM Sales LY 12M (use LY snapshot)]
+		lineageTag: 4e00a0bd-805d-496d-b299-4ba965d33999
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Sales_TY =
+			
+			SUM ( 'FACT_SALES_MONTH'[ResExt] )
+		lineageTag: d70481ba-b1f1-4cac-a631-21dd963872c0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Sales TY 12M' =
+			
+			VAR _selMonth = MAX ( 'DIM_MONTH'[MonthEnd] )
+			VAR _start    = EDATE ( _selMonth, -11 )
+			RETURN
+			CALCULATE (
+			    [Sales],                                    -- 你說的那個：SUM ( fact_clean[ResExt] )
+			    'DIM_MONTH'[MonthEnd] >= _start &&
+			    'DIM_MONTH'[MonthEnd] <= _selMonth
+			)
+		lineageTag: 500eec87-ecf9-49f3-a881-d0b32d744dd4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Sales LY 12M' =
+			
+			VAR _selMonthLY = EDATE ( MAX ( 'DIM_MONTH'[MonthEnd] ), -12 )
+			VAR _startLY    = EDATE ( _selMonthLY, -11 )
+			RETURN
+			CALCULATE (
+			    [Sales],
+			    'DIM_MONTH'[MonthEnd] >= _startLY &&
+			    'DIM_MONTH'[MonthEnd] <= _selMonthLY
+			)
+		lineageTag: feecdaab-77db-4b1c-bf1c-ce9662b8297a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Sales Diff 12M' =
+			
+			[Sales TY 12M] - [Sales LY 12M]
+		lineageTag: 15593cad-4852-4591-beee-ee1ed44aaabf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'RFM Sales TY 12M' =
+			
+			VAR _selMonth =
+			    MAX ( 'DIM_MONTH'[MonthEnd] )
+			VAR _start =
+			    EDATE ( _selMonth, -11 )
+			
+			-- 看現在是在一列裡，還是在總計列
+			VAR _isSingleRFM =
+			    HASONEVALUE ( 'customer_monthlyrfm'[RFM_NameZh] )
+			
+			-- ① 單一 RFM 時，要拿的「這個 RFM 在這個月的客戶×通路」清單
+			VAR _custChanThisRFM =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK],
+			            'customer_monthlyrfm'[DistName]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] = _selMonth,
+			        KEEPFILTERS ( VALUES ( 'customer_monthlyrfm'[RFM_NameZh] ) ),
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			
+			-- ② 總計列時，要拿「這個月所有 RFM 的客戶×通路」
+			VAR _custChanAllRFM =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK],
+			            'customer_monthlyrfm'[DistName]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] = _selMonth,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			RETURN
+			IF (
+			    _isSingleRFM,
+			    -- 單一分群
+			    CALCULATE (
+			        [Sales],
+			        TREATAS ( _custChanThisRFM, 'fact_clean'[CustomerNK], 'fact_clean'[DistName] ),
+			        'fact_clean'[POS_ShpDate] >= _start,
+			        'fact_clean'[POS_ShpDate] <= _selMonth,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    ),
+			    -- 總計列
+			    CALCULATE (
+			        [Sales],
+			        TREATAS ( _custChanAllRFM, 'fact_clean'[CustomerNK], 'fact_clean'[DistName] ),
+			        'fact_clean'[POS_ShpDate] >= _start,
+			        'fact_clean'[POS_ShpDate] <= _selMonth,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			)
+		lineageTag: 0e2376a1-fcf5-4f6d-be60-912fdac14f7f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'RFM Sales LY 12M' =
+			
+			VAR _selMonth =
+			    MAX ( 'DIM_MONTH'[MonthEnd] )
+			
+			-- 這是「去年這一段 12M」的結尾
+			VAR _lyEnd =
+			    EDATE ( _selMonth, -12 )
+			
+			-- 這是「去年這一段 12M」的開始
+			VAR _lyStart =
+			    EDATE ( _selMonth, -23 )
+			
+			VAR _isSingleRFM =
+			    HASONEVALUE ( 'customer_monthlyrfm'[RFM_NameZh] )
+			
+			-- 單一分群的客戶×通路（用今年這個月的快照來抓名單）
+			VAR _custChanThisRFM =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK],
+			            'customer_monthlyrfm'[DistName]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] = _selMonth,
+			        KEEPFILTERS ( VALUES ( 'customer_monthlyrfm'[RFM_NameZh] ) ),
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			
+			-- 總計時的客戶×通路（同樣用今年這個月的快照）
+			VAR _custChanAllRFM =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK],
+			            'customer_monthlyrfm'[DistName]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] = _selMonth,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			RETURN
+			IF (
+			    _isSingleRFM,
+			    CALCULATE (
+			        [Sales],
+			        TREATAS ( _custChanThisRFM, 'fact_clean'[CustomerNK], 'fact_clean'[DistName] ),
+			        'fact_clean'[POS_ShpDate] >= _lyStart,
+			        'fact_clean'[POS_ShpDate] <= _lyEnd,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    ),
+			    CALCULATE (
+			        [Sales],
+			        TREATAS ( _custChanAllRFM, 'fact_clean'[CustomerNK], 'fact_clean'[DistName] ),
+			        'fact_clean'[POS_ShpDate] >= _lyStart,
+			        'fact_clean'[POS_ShpDate] <= _lyEnd,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			)
+		lineageTag: 84269bd9-49c0-44e3-ac7a-54d4a2402d89
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'RFM Sales LY 12M (use LY snapshot)' =
+			
+			VAR _selMonth =
+			    MAX ( 'DIM_MONTH'[MonthEnd] )
+			
+			-- 去年那一個月的快照
+			VAR _lyMonth =
+			    EDATE ( _selMonth, -12 )
+			
+			-- 去年這段 12M 的結尾：就是去年的那個月
+			VAR _lyEnd =
+			    _lyMonth
+			
+			-- 去年這段 12M 的開始：從去年那個月再往回 11 個月
+			-- 比方說選 2025/7 → _lyMonth=2024/7 → 這裡就是 2023/8
+			VAR _lyStart =
+			    EDATE ( _lyMonth, -11 )
+			
+			VAR _isSingleRFM =
+			    HASONEVALUE ( 'customer_monthlyrfm'[RFM_NameZh] )
+			
+			-- ★ 這裡是關鍵：用「一年前那個月」的 RFM 快照，抓出當時的客戶×通路
+			VAR _custChanThisRFM =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK],
+			            'customer_monthlyrfm'[DistName]
+			            -- 如果你模型有綁 GeoGroup，要在這裡多放一個欄位，下面我會說
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] = _lyMonth,
+			        KEEPFILTERS ( VALUES ( 'customer_monthlyrfm'[RFM_NameZh] ) ),
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			
+			-- 總計時：同樣用「一年前那個月」的全客戶×通路
+			VAR _custChanAllRFM =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK],
+			            'customer_monthlyrfm'[DistName]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] = _lyMonth,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			RETURN
+			IF (
+			    _isSingleRFM,
+			    CALCULATE (
+			        [Sales],
+			        TREATAS ( _custChanThisRFM, 'fact_clean'[CustomerNK], 'fact_clean'[DistName] ),
+			        'fact_clean'[POS_ShpDate] >= _lyStart,
+			        'fact_clean'[POS_ShpDate] <= _lyEnd,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    ),
+			    CALCULATE (
+			        [Sales],
+			        TREATAS ( _custChanAllRFM, 'fact_clean'[CustomerNK], 'fact_clean'[DistName] ),
+			        'fact_clean'[POS_ShpDate] >= _lyStart,
+			        'fact_clean'[POS_ShpDate] <= _lyEnd,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			)
+		lineageTag: 08c3d1b6-6493-4152-8ce0-622d10cadf17
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Is Current Snapshot' =
+			
+			VAR _end =
+			    MAX ( 'Dim_Month'[MonthEnd] )      -- slicer 選到的那一天
+			VAR _thisRowMonth =
+			    MAX ( 'customer_monthlyrfm'[MonthEnd] )
+			RETURN
+			IF ( _thisRowMonth = _end, 1, 0 )
+		formatString: 0
+		lineageTag: e9100cb0-d272-4d2b-a741-d529ba9955fe
+
+	measure 'RFM Sales Diff 12M Abs' =
+			
+			VAR _ty = [RFM Sales TY 12M]
+			VAR _ly = [RFM Sales LY 12M]
+			RETURN
+			IF (
+			    NOT ISBLANK ( _ty ) && NOT ISBLANK ( _ly ),
+			    ABS ( _ty - _ly ),
+			    BLANK ()
+			)
+		lineageTag: e5da31d1-ce43-4d8c-8960-f9b14ed56231
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Cumulative % LY 12M' =
+			
+			VAR _total =
+			    CALCULATE(
+			        [RFM Sales LY 12M (use LY snapshot)],
+			        REMOVEFILTERS ( 'customer_monthlyrfm' )
+			    )
+			VAR _current =
+			    [RFM Sales LY 12M (use LY snapshot)]
+			VAR _cumu =
+			    CALCULATE(
+			        [RFM Sales LY 12M (use LY snapshot)],
+			        FILTER(
+			            ALLSELECTED ( 'customer_monthlyrfm' ),
+			            [RFM Sales LY 12M (use LY snapshot)] >= _current
+			        )
+			    )
+			RETURN
+			DIVIDE( _cumu, _total )
+		lineageTag: bd5ed75b-227a-45d7-9a7f-da8a407f5194
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Core 80%' =
+			
+			IF ( [Cumulative % LY 12M] <= 0.8, 1, 0 )
+		formatString: 0
+		lineageTag: d3b04f31-503c-4ad5-bc16-9f686122a1be
+
+	measure 'Core % LY 12M' =
+			
+			VAR _tbl =
+			    ADDCOLUMNS (
+			        -- 這裡要的是「目前視覺上看得到的全部 RFM」
+			        ALLSELECTED ( 'customer_monthlyrfm'[RFM_NameZh] ),
+			        "SalesLY", [RFM Sales LY 12M (use LY snapshot)]
+			    )
+			VAR _total =
+			    SUMX ( _tbl, [SalesLY] )
+			-- 我這一列的金額
+			VAR _this =
+			    [RFM Sales LY 12M (use LY snapshot)]
+			-- 我這一列在「視覺中、照金額大到小」裡是第幾名
+			VAR _rank =
+			    RANKX ( _tbl, [SalesLY], _this, DESC, DENSE )
+			-- 把排名 ≤ 我這一列的都加起來 = 累積到我為止
+			VAR _cumu =
+			    SUMX (
+			        FILTER (
+			            _tbl,
+			            RANKX ( _tbl, [SalesLY], [SalesLY], DESC, DENSE ) <= _rank
+			        ),
+			        [SalesLY]
+			    )
+			RETURN
+			DIVIDE ( _cumu, _total )
+		lineageTag: 218d61ec-7559-43a9-a4f4-fd548c682753
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Core Flag 80%' =
+			
+			IF ( [Core % LY 12M] <= 0.8, 1, 0 )
+		formatString: 0
+		lineageTag: dda4e2d8-b3c5-4292-8966-87c8e72a8179
+
+	measure 'Customers by Freq (12M)' =
+			
+			VAR _selMonth =
+			    MAX ( 'DIM_MONTH'[MonthEnd] )   -- 使用切片器目前選到的最後一個月份
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( 'customer_monthlyrfm'[CustDistKey] ),
+			    -- 只看這個快照月（這個月的 Freq12M 已經是往前 12M 的統計）
+			    'customer_monthlyrfm'[MonthEnd] = _selMonth
+			    -- 不再移除 GeoGroup / DistName 的篩選
+			)
+		formatString: 0
+		lineageTag: e7d304a3-cd9b-49d9-892e-437cfcc104e4
+
+	measure 'Sales by Freq (12M)' =
+			
+			VAR _selMonth =
+			    MAX ( 'DIM_MONTH'[MonthEnd] )
+			RETURN
+			CALCULATE (
+			    SUM ( 'customer_monthlyrfm'[Sales12M] ),
+			    -- 只看這個快照月（這個月的 Sales12M 就是往前 12M 的銷售額）
+			    'customer_monthlyrfm'[MonthEnd] = _selMonth
+			    -- 保留 GeoGroup、DistName 的篩選條件
+			)
+		lineageTag: 769379a3-09ee-4ad0-a0ad-e6198fb87d39
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Sales by Freq % (12M)' =
+			
+			VAR _selMonth = MAX ( 'DIM_MONTH'[MonthEnd] )
+			VAR _allSales =
+			    CALCULATE (
+			        SUM ( 'customer_monthlyrfm'[Sales12M] ),
+			        'customer_monthlyrfm'[MonthEnd] = _selMonth,
+			        REMOVEFILTERS ( 'customer_monthlyrfm'[DistName] ),
+			        REMOVEFILTERS ( 'customer_monthlyrfm'[GeoGroup] ),
+			        REMOVEFILTERS ( 'customer_monthlyrfm'[Freq12M] )
+			    )
+			RETURN
+			DIVIDE ( [Sales by Freq (12M)], _allSales )
+		lineageTag: 869d265c-8f8b-478e-b4ba-41852883cbba
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Avg Sales per Customer by Freq (12M)' =
+			
+			DIVIDE(
+			    [Sales by Freq (12M)],
+			    [Customers by Freq (12M)],
+			    0
+			)
+		lineageTag: ecfbc174-8ffe-4616-9f65-e0f70f7a8986
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'RFM Sales YoY 12M %' =
+			
+			VAR _ty = [RFM Sales TY 12M]
+			VAR _ly = [RFM Sales LY 12M]
+			RETURN
+			IF (
+			    NOT ISBLANK ( _ly ) && _ly <> 0,
+			    (_ty - _ly) / _ly,
+			    BLANK()
+			)
+		lineageTag: e8570118-48c9-491f-9772-c5a26eca8b8e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'OneTime Cust 12M Count' =
+			
+			VAR _selMonth =
+			    MAX ( 'DIM_MONTH'[MonthEnd] )
+			VAR _startDate =
+			    EDATE ( _selMonth, -11 )
+			
+			-- 這個月快照裡「12M 只買過 1 個月」的客戶名單
+			VAR _oneTimeCust =
+			    CALCULATETABLE (
+			        VALUES ( 'customer_monthlyrfm'[CustomerNK] ),
+			        'customer_monthlyrfm'[MonthEnd] = _selMonth,
+			        'customer_monthlyrfm'[Freq12M] = 1,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( 'fact_clean'[CustomerNK] ),
+			    -- 限定這 12 個月的交易
+			    'fact_clean'[POS_ShpDate] >= _startDate,
+			    'fact_clean'[POS_ShpDate] <= _selMonth,
+			    -- 只看剛剛那批「一年只買一次」的客戶
+			    TREATAS ( _oneTimeCust, 'fact_clean'[CustomerNK] ),
+			    -- 不要讓月份切斷
+			    REMOVEFILTERS ( 'DIM_MONTH' )
+			)
+		lineageTag: fd957bff-bb7c-4edb-af53-c22643f14f63
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'RFM Sales TY 12M OneTime' =
+			
+			VAR _selMonth =
+			    MAX ( 'DIM_MONTH'[MonthEnd] )
+			VAR _start =
+			    EDATE ( _selMonth, -11 )
+			VAR _isSingleRFM =
+			    HASONEVALUE ( 'customer_monthlyrfm'[RFM_NameZh] )
+			
+			-- ① 單一 RFM：這個月、這個分群、而且「近12M只出現1個月」的客戶×通路
+			VAR _custChanThisRFM =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK],
+			            'customer_monthlyrfm'[DistName]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] = _selMonth,
+			        KEEPFILTERS ( VALUES ( 'customer_monthlyrfm'[RFM_NameZh] ) ),
+			        -- 這一行就是關鍵：只要 12M 出現 1 個月的
+			        'customer_monthlyrfm'[Freq12M] = 1,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			
+			-- ② 總計列：這個月所有「12M只出現1個月」的客戶×通路
+			VAR _custChanAllRFM =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK],
+			            'customer_monthlyrfm'[DistName]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] = _selMonth,
+			        'customer_monthlyrfm'[Freq12M] = 1,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			RETURN
+			IF (
+			    _isSingleRFM,
+			    CALCULATE (
+			        [Sales],
+			        TREATAS ( _custChanThisRFM, 'fact_clean'[CustomerNK], 'fact_clean'[DistName] ),
+			        'fact_clean'[POS_ShpDate] >= _start,
+			        'fact_clean'[POS_ShpDate] <= _selMonth,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    ),
+			    CALCULATE (
+			        [Sales],
+			        TREATAS ( _custChanAllRFM, 'fact_clean'[CustomerNK], 'fact_clean'[DistName] ),
+			        'fact_clean'[POS_ShpDate] >= _start,
+			        'fact_clean'[POS_ShpDate] <= _selMonth,
+			        REMOVEFILTERS ( 'DIM_MONTH' )
+			    )
+			)
+		lineageTag: 3d259a84-d971-444b-8997-d6d49eaae8f0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Rolling One-Time Customers' =
+			
+			VAR _selMonth  = MAX ( 'DIM_MONTH'[MonthEnd] )
+			VAR _startMonth = EDATE ( _selMonth, -11 )
+			VAR _custTable =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] >= _startMonth &&
+			        'customer_monthlyrfm'[MonthEnd] <= _selMonth,
+			        'customer_monthlyrfm'[Freq12M] = 1,
+			        -- 只把 MonthEnd 的篩選拿掉，保留 GeoGroup / DistName / ProductLine 的切片
+			        REMOVEFILTERS ( 'customer_monthlyrfm'[MonthEnd] )
+			    )
+			RETURN
+			    COUNTROWS ( _custTable )
+		formatString: 0
+		lineageTag: ad5652bb-0b51-4a7b-9ebb-86d3e8a41ec8
+
+	measure 'One-Time Ratio' =
+			
+			DIVIDE ( [One-Time Customers (12M)], [Total Customers (12M)] )
+		lineageTag: 72ac5ef5-d3e7-45ab-8503-88c6791dd1a0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Customers (12M)' =
+			
+			VAR selMonth =
+			    MAX ( 'DIM_MONTH'[MonthEnd] )
+			RETURN
+			CALCULATE (
+			    DISTINCTCOUNT ( 'customer_monthlyrfm'[CustomerNK] ),
+			    -- 只看這個快照月
+			    'customer_monthlyrfm'[MonthEnd] = selMonth,
+			    -- 這 12 個月有買過的客戶
+			    'customer_monthlyrfm'[Freq12M] > 0
+			)
+		formatString: 0
+		lineageTag: 31a354a0-7f9a-41a5-a877-48d5cd91f080
+
+	measure 'Rolling Total Customers' =
+			
+			VAR _selMonth  = MAX ( 'DIM_MONTH'[MonthEnd] )
+			VAR _startMonth = EDATE ( _selMonth, -11 )
+			VAR _custTable =
+			    CALCULATETABLE (
+			        SUMMARIZE (
+			            'customer_monthlyrfm',
+			            'customer_monthlyrfm'[CustomerNK]
+			        ),
+			        'customer_monthlyrfm'[MonthEnd] >= _startMonth &&
+			        'customer_monthlyrfm'[MonthEnd] <= _selMonth,
+			        -- 不限制 Freq12M，所有 12M 內曾經買過一次的客戶
+			        REMOVEFILTERS ( 'customer_monthlyrfm'[MonthEnd] )
+			    )
+			RETURN
+			    COUNTROWS ( _custTable )
+		formatString: 0
+		lineageTag: e7aaa024-87a6-40d2-b8aa-5e1f5bdac983
+
+	measure 'One-Time Customers (12M)' =
+			
+			CALCULATE (
+			    DISTINCTCOUNT ( 'customer_monthlyrfm'[CustomerNK] ),
+			    'customer_monthlyrfm'[Freq12M] = 1
+			    -- 不要 REMOVEFILTERS，讓 GeoGroup / DistName / ProductLine
+			    -- 的 slicer 自然套用到這個量值
+			)
+		formatString: 0
+		lineageTag: 4ff17169-c2c5-489e-9074-8d71156f744c
+
+	column CustomerNK
+		dataType: string
+		lineageTag: e024295a-ecd3-4ed2-80d1-5f9198f6a716
+		summarizeBy: none
+		sourceColumn: CustomerNK
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SnapshotMonth
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 069e1aca-853b-422b-a48d-a92b2ff1ac96
+		summarizeBy: none
+		sourceColumn: SnapshotMonth
+
+		changedProperty = DataType
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column MonthlySales
+		dataType: double
+		lineageTag: 4a12c2ec-4155-4daf-8184-901135bb97d2
+		summarizeBy: sum
+		sourceColumn: MonthlySales
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column OrderCount
+		dataType: int64
+		formatString: 0
+		lineageTag: 08bdb6d7-607d-491c-a994-ab76f4045c67
+		summarizeBy: sum
+		sourceColumn: OrderCount
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column OrdersToDate
+		dataType: int64
+		formatString: 0
+		lineageTag: 2c37dd81-1aeb-4485-827d-d8a0219776be
+		summarizeBy: sum
+		sourceColumn: OrdersToDate
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sales12M
+		dataType: double
+		lineageTag: b98b0404-165f-4c9e-96f4-daebfe6c8b03
+		summarizeBy: sum
+		sourceColumn: Sales12M
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Freq12M
+		dataType: double
+		lineageTag: 03ad211b-703e-4ae8-9b43-a473502a7c5a
+		summarizeBy: sum
+		sourceColumn: Freq12M
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FirstPurchaseMonth
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f53c2d57-3d01-45e9-9f1c-d2d7c52ae647
+		summarizeBy: none
+		sourceColumn: FirstPurchaseMonth
+
+		changedProperty = IsHidden
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LastPurchaseMonth
+		dataType: int64
+		formatString: 0
+		lineageTag: 9a05f72d-3f56-488c-a764-feae65e624d8
+		summarizeBy: sum
+		sourceColumn: LastPurchaseMonth
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RecencyM
+		dataType: int64
+		formatString: 0
+		lineageTag: d35c8e70-ac9b-41d6-b22d-ac49a45c2e42
+		summarizeBy: sum
+		sourceColumn: RecencyM
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsNew
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 94b37801-4e5b-42fa-811a-6dc4742ec127
+		summarizeBy: none
+		sourceColumn: IsNew
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column NetSalesM
+		dataType: double
+		lineageTag: 1c6ef2e4-23c3-4945-b6f6-135ba1bbb369
+		summarizeBy: sum
+		sourceColumn: NetSalesM
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PurchAmtM
+		dataType: double
+		lineageTag: ef5b1b3e-afa5-4f63-8419-7e9c54719c21
+		summarizeBy: sum
+		sourceColumn: PurchAmtM
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ReturnAmtM
+		dataType: double
+		lineageTag: ba721ca9-6ce9-41e5-bb33-ba51161c8e66
+		summarizeBy: sum
+		sourceColumn: ReturnAmtM
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Rolling12M_Index
+		dataType: int64
+		formatString: 0
+		lineageTag: 362018b8-952a-4fb3-a588-3ef115f2b90f
+		summarizeBy: sum
+		sourceColumn: Rolling12M_Index
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rolling12M_Label
+		dataType: string
+		lineageTag: 4e4eecb2-8293-42e5-a90e-ce1ce3b37b10
+		summarizeBy: none
+		sourceColumn: Rolling12M_Label
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column FirstPurchaseAmt
+		dataType: double
+		lineageTag: c1cdc501-d01b-4f5a-b0af-5b0e4bc1f2f7
+		summarizeBy: sum
+		sourceColumn: FirstPurchaseAmt
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MonthEnd
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4e51aa3d-88dd-47aa-8428-353529d09893
+		summarizeBy: none
+		sourceColumn: MonthEnd
+
+		changedProperty = IsHidden
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column GeoGroup
+		dataType: string
+		lineageTag: 35b4993d-4669-4855-b056-ba843c1cdede
+		summarizeBy: none
+		sourceColumn: GeoGroup
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CohortMonth
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 35978195-951b-4c4f-ae50-7b5affc36e31
+		summarizeBy: none
+		sourceColumn: CohortMonth
+
+		changedProperty = DataType
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column MonthsSinceFirst
+		dataType: int64
+		formatString: 0
+		lineageTag: 3b52c298-c3e2-4d60-ab4a-34c5a39319fb
+		summarizeBy: sum
+		sourceColumn: MonthsSinceFirst
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustomerAgeM
+		dataType: int64
+		formatString: 0
+		lineageTag: d1b08be1-fe9e-4076-8cf4-ac6cce62a06c
+		summarizeBy: sum
+		sourceColumn: CustomerAgeM
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsReturning
+		dataType: int64
+		formatString: 0
+		lineageTag: 42c537d2-521f-4ea7-93b7-30f2a44586e7
+		summarizeBy: sum
+		sourceColumn: IsReturning
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearIndex
+		dataType: int64
+		formatString: 0
+		lineageTag: 44637674-62ff-458c-b2ed-e2b484490dbb
+		summarizeBy: sum
+		sourceColumn: YearIndex
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearLabel
+		dataType: string
+		lineageTag: 06240880-bd07-4354-a6f5-11b89579a922
+		summarizeBy: none
+		sourceColumn: YearLabel
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnnualValue
+		dataType: double
+		lineageTag: 09587cd4-f6c0-4912-8b7b-ad6621ec63ca
+		summarizeBy: sum
+		sourceColumn: AnnualValue
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CohortYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 5d78f49b-9076-4fbd-bc97-859b171e1eaa
+		summarizeBy: sum
+		sourceColumn: CohortYear
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DistName
+		dataType: string
+		lineageTag: c08ec365-1956-432e-b2be-4541a29d25a6
+		summarizeBy: none
+		sourceColumn: DistName
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RFM_Key = ```
+			
+			    customer_monthlyrfm[CustomerNK] & "|" &
+			    customer_monthlyrfm[DistName]   & "|" &
+			    customer_monthlyrfm[GeoGroup]   & "|" &
+			    FORMAT ( customer_monthlyrfm[MonthEnd], "yyyy-MM-dd" )
+			```
+		lineageTag: 6fd4a323-6136-4929-a219-63444932208b
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Channel
+		dataType: string
+		lineageTag: b2c1e78a-4bb8-4f49-94ac-56802b29ba9a
+		summarizeBy: none
+		sourceColumn: Channel
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column CV12_Customer
+		dataType: double
+		lineageTag: 3bd36117-11dc-4d24-a2d8-537d91bc1dbf
+		summarizeBy: sum
+		sourceColumn: CV12_Customer
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CustomerSegment
+		dataType: string
+		lineageTag: 711c6ad4-73b7-4dc0-9311-3ff567ffe446
+		summarizeBy: none
+		sourceColumn: CustomerSegment
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RepurchaseStability
+		dataType: double
+		lineageTag: a9f83b2b-797f-4cea-9ea1-bdffbe80fd5b
+		summarizeBy: sum
+		sourceColumn: RepurchaseStability
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RepurchaseStabilityPct
+		dataType: double
+		lineageTag: 567ee431-4723-46d9-9f2c-c719c82ef5b7
+		summarizeBy: sum
+		sourceColumn: RepurchaseStabilityPct
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RecencySegment
+		dataType: string
+		lineageTag: 610d54a7-1e3a-4179-a5b8-b19d9467a2c8
+		summarizeBy: none
+		sourceColumn: RecencySegment
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrequencySegment
+		dataType: string
+		lineageTag: c0c17c33-f791-4101-83c9-0a3ab70d106a
+		summarizeBy: none
+		sourceColumn: FrequencySegment
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ValueSegment
+		dataType: string
+		lineageTag: 3448b0ac-c081-4323-a742-5b28497aa5d9
+		summarizeBy: none
+		sourceColumn: ValueSegment
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RFM_Segment
+		dataType: string
+		lineageTag: bdca99f8-a4cd-4a47-9735-8cf7713587fc
+		summarizeBy: none
+		sourceColumn: RFM_Segment
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RFM_NameZh
+		dataType: string
+		lineageTag: 39da4cad-ab10-44cd-b7eb-8e00503e35a2
+		summarizeBy: none
+		sourceColumn: RFM_NameZh
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RFM_NameEn
+		dataType: string
+		lineageTag: 33d28b7d-8aa2-4a0b-825c-520a4a331982
+		summarizeBy: none
+		sourceColumn: RFM_NameEn
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column FrequencySegmentAxis =
+			
+			SWITCH(
+			    'customer_monthlyrfm'[FrequencySegment],
+			    "Low", 1,
+			    "Mid", 2,
+			    "High", 3,
+			    BLANK()
+			)
+		formatString: 0
+		lineageTag: 1cba74ec-fb4b-4121-b8a8-d4d2d2d32df5
+		summarizeBy: sum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ValueSegmentAxis = ```
+			
+			SWITCH(
+			    'customer_monthlyrfm'[ValueSegment],
+			    "Low", 1,
+			    "Mid", 2,
+			    "High", 3,
+			    BLANK()
+			)
+			
+			```
+		formatString: 0
+		lineageTag: 09e612a7-8813-438c-8379-55a0e5c9e9e2
+		summarizeBy: sum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AvgOrderValue12M
+		dataType: double
+		lineageTag: 85262bca-e6da-4ec8-aef9-4fce81a92448
+		summarizeBy: sum
+		sourceColumn: AvgOrderValue12M
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column R_Quintile
+		dataType: string
+		lineageTag: 7fba8104-413a-4eee-affc-6975b1d900a2
+		summarizeBy: none
+		sourceColumn: R_Quintile
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column F_Quintile
+		dataType: string
+		lineageTag: df038688-5279-439f-9689-de049f5a0213
+		summarizeBy: none
+		sourceColumn: F_Quintile
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column M_Quintile
+		dataType: string
+		lineageTag: 8404f523-ca23-4383-9444-f48a8c6250ad
+		summarizeBy: none
+		sourceColumn: M_Quintile
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ValueSegment_Q5
+		dataType: string
+		lineageTag: db5163a1-317f-47c1-94e3-c93f4c97844d
+		summarizeBy: none
+		sourceColumn: ValueSegment_Q5
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrainEnd
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 0fb8c000-8be2-47c6-aba5-6b4f6edbaa1e
+		summarizeBy: none
+		sourceColumn: TrainEnd
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ValueSegment_Pct
+		dataType: string
+		lineageTag: a391d2ae-c493-4279-a77d-fb86c1f92b9f
+		summarizeBy: none
+		sourceColumn: ValueSegment_Pct
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RFM_Segment_MFR
+		dataType: string
+		lineageTag: 68492fb9-9a14-4f5e-b0b1-225a185c68f8
+		summarizeBy: none
+		sourceColumn: RFM_Segment_MFR
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RFM_NameZh_S
+		dataType: string
+		lineageTag: 76838624-96ab-429a-8e0b-1db833122352
+		summarizeBy: none
+		sourceColumn: RFM_NameZh_S
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustDistKey
+		dataType: string
+		lineageTag: 46fc80b1-4ce1-4843-83ba-a3c96f73f87e
+		summarizeBy: none
+		sourceColumn: CustDistKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column CustDistKeyMonth
+		dataType: string
+		lineageTag: ff30ce1f-403d-4629-b1e6-644d784eabbd
+		summarizeBy: none
+		sourceColumn: CustDistKeyMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	partition customer_monthlyrfm = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\customer_monthlyrfm.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = 導覽
+

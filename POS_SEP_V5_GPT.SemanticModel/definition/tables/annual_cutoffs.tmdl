@@ -1,0 +1,81 @@
+table annual_cutoffs
+	lineageTag: 8f30d497-ff93-40b9-a9d7-8b1b95cfe4b4
+
+	column Head_Cutoff
+		dataType: double
+		lineageTag: 89131135-a09e-4177-b1ec-7622b7970685
+		summarizeBy: sum
+		sourceColumn: Head_Cutoff
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Mid_Cutoff
+		dataType: double
+		lineageTag: a7af3a76-80fc-4949-85ce-bc526c0769f8
+		summarizeBy: sum
+		sourceColumn: Mid_Cutoff
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CutoffYear
+		dataType: int64
+		formatString: 0
+		lineageTag: 63999712-a691-465b-bd94-df6bf06ef5ce
+		summarizeBy: sum
+		sourceColumn: CutoffYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column Method
+		dataType: string
+		lineageTag: a0e0f5c2-bde8-4329-b17a-aef50ad382e3
+		summarizeBy: none
+		sourceColumn: Method
+
+		annotation SummarizationSetBy = Automatic
+
+	column A_Share
+		dataType: double
+		lineageTag: 9345cd28-172c-46a5-9e92-b917201f31cf
+		summarizeBy: sum
+		sourceColumn: A_Share
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column B_Share
+		dataType: double
+		lineageTag: c0b50c20-eaa8-4713-8b35-f6f91f503cbd
+		summarizeBy: sum
+		sourceColumn: B_Share
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SampleN
+		dataType: int64
+		formatString: 0
+		lineageTag: d26a4b62-523f-4415-8998-2b4fd9c0ccc2
+		summarizeBy: sum
+		sourceColumn: SampleN
+
+		annotation SummarizationSetBy = Automatic
+
+	partition annual_cutoffs = m
+		mode: import
+		source =
+				let
+				    來源 = Parquet.Document(File.Contents("C:\Users\rich\OneDrive\工作\Advantech\eCCP\duckDB\annual_cutoffs.parquet"), [Compression=null, LegacyColumnNameEncoding=false, MaxDepth=null])
+				in
+				    來源
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = 導覽
+
