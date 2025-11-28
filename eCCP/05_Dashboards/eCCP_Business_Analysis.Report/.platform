@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "eCCP_Business_Analysis"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "f2b305d9-b199-4068-bc88-06c2462efadb"
+  }
+}

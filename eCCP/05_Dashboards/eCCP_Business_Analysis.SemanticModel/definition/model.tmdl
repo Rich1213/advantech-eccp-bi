@@ -1,0 +1,22 @@
+model Model
+	culture: zh-TW
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: zh-TW
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Dim_Customer","Dim_Date","Dim_Distributor","Dim_Product","Fact_Sales"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table Dim_Customer
+ref table Dim_Date
+ref table Dim_Distributor
+ref table Dim_Product
+ref table Fact_Sales
+
+ref cultureInfo zh-TW
+
