@@ -1,19 +1,20 @@
 import pandas as pd
 import os
-import numpy as np
 
 # --- 1. 路徑設定 ---
-BASE_PATH = "/Users/rich/我的雲端硬碟/eCCP"
+# 動態抓取路徑，避免寫死
+current_dir = os.path.dirname(os.path.abspath(__file__))
+BASE_PATH = os.path.dirname(current_dir)
+
 INPUT_FILE = os.path.join(BASE_PATH, "02_ProcessedData", "POS_Cleaned.parquet")
 OUTPUT_FOLDER = os.path.join(BASE_PATH, "02_ProcessedData", "BI_Tables")
+CONFIG_FILE = os.path.join(BASE_PATH, "99_Config", "Customer_Parent_Mapping.xlsx")
 
-# 建立輸出資料夾
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 def create_star_schema():
-    print("🌟 [Star Schema 引擎] 啟動中...")
+    print("🌟 [Star Schema 引擎 V3.1 - Fix Mapping] 啟動中...")
     
-    # 讀取清洗後的 Parquet
     if not os.path.exists(INPUT_FILE):
         print(f"❌ 錯誤: 找不到輸入檔 {INPUT_FILE}")
         return
@@ -21,128 +22,128 @@ def create_star_schema():
     df = pd.read_parquet(INPUT_FILE)
     print(f"   - 讀取來源資料: {len(df):,} 筆")
 
-    # ==========================================
-    # 1. 建立 Dim_Product (產品維度)
-    # ==========================================
-    print("   - 🔨 正在建立 Dim_Product...")
-    # 選取產品相關欄位
-    prod_cols = ['PtNo', 'Product Line', 'Product Division', 'Product Group', 'Group Roll-UP']
-    # 去除重複，只留唯一的產品資料
-    dim_prod = df[prod_cols].drop_duplicates(subset=['PtNo'])
-    
-    # 處理可能的缺失值
-    dim_prod = dim_prod.fillna('Unknown')
-    
-    # 儲存
+    # 欄位名稱對齊
+    rename_map = {'CustCty': 'CustCity', 'Adj PtNo': 'AdjPtNo'}
+    available_map = {k: v for k, v in rename_map.items() if k in df.columns}
+    if available_map: df = df.rename(columns=available_map)
+
+    # 0. 全局標準化
+    print("   - 🔄 Key 值大寫標準化...")
+    key_cols = ['AdjPtNo', 'PtNo', 'DistName', 'CustName', 'CustCity', 'CustSt', 'CustZIP']
+    for col in key_cols:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.strip().str.upper()
+            df[col] = df[col].replace({'NAN': 'UNKNOWN', 'NONE': 'UNKNOWN', '': 'UNKNOWN'})
+
+    # 1. Dim_Product
+    print("   - 🔨 建立 Dim_Product...")
+    product_key = 'AdjPtNo' if 'AdjPtNo' in df.columns else 'PtNo'
+    prod_cols = [c for c in ['AdjPtNo', 'PtNo', 'Product Line', 'Product Division', 'Product Group', 'Group Roll-UP'] if c in df.columns]
+    df[product_key] = df[product_key].fillna('UNKNOWN')
+    dim_prod = df[prod_cols].drop_duplicates(subset=[product_key]).fillna('Unknown')
     dim_prod.to_parquet(os.path.join(OUTPUT_FOLDER, "Dim_Product.parquet"), index=False)
-    print(f"     ✅ 完成: {len(dim_prod):,} 個唯一產品")
 
-    # ==========================================
-    # 2. 建立 Dim_Distributor (通路維度)
-    # ==========================================
-    print("   - 🔨 正在建立 Dim_Distributor...")
+    # 2. Dim_Distributor
+    print("   - 🔨 建立 Dim_Distributor...")
     dist_cols = ['DistName', 'Channel Manager', 'TerrNo', 'DIST TYPE']
-    # 確保這些欄位存在 (防呆)
-    valid_dist_cols = [c for c in dist_cols if c in df.columns]
-    
-    dim_dist = df[valid_dist_cols].drop_duplicates(subset=['DistName'])
-    dim_dist = dim_dist.fillna('Unknown')
-    
+    df['DistName'] = df['DistName'].fillna('UNKNOWN')
+    dim_dist = df[dist_cols].drop_duplicates(subset=['DistName']).fillna('Unknown')
     dim_dist.to_parquet(os.path.join(OUTPUT_FOLDER, "Dim_Distributor.parquet"), index=False)
-    print(f"     ✅ 完成: {len(dim_dist):,} 個經銷商")
 
-    # ==========================================
-    # 3. 建立 Dim_Customer (客戶維度) - 關鍵!
-    # ==========================================
-    print("   - 🔨 正在建立 Dim_Customer (並產生 Customer_Key)...")
-    # 定義什麼算是一個「唯一客戶」：名字 + 郵遞區號 (避免同名不同地)
+    # 3. Dim_Customer (含集團歸戶)
+    print("   - 🔨 建立 Dim_Customer (整合集團歸戶)...")
     cust_cols = ['CustName', 'CustCity', 'CustSt', 'CustZIP', 'Channel District', 'Channel GeoGroup']
-    valid_cust_cols = [c for c in cust_cols if c in df.columns]
+    available_cust_cols = [c for c in cust_cols if c in df.columns]
     
-    # 去重
-    dim_cust = df[valid_cust_cols].drop_duplicates()
-    
-    # 【關鍵步驟】產生 Customer_Key (整數 ID)
-    # 這讓我們在 Fact Table 可以只存 ID，節省空間並加速
+    # 3.1 基礎清單
+    dim_cust = df[available_cust_cols].drop_duplicates().reset_index(drop=True)
+
+    # 3.2 讀取 Excel 黃金帳本
+    if os.path.exists(CONFIG_FILE):
+        print("     📖 讀取 Mapping Table...")
+        try:
+            map_df = pd.read_excel(CONFIG_FILE)
+            
+            # [Fix] 去除欄位名稱的空白 (以防萬一)
+            map_df.columns = map_df.columns.str.strip()
+            
+            # 檢查關鍵欄位是否存在
+            if 'Original_CustName' in map_df.columns:
+                # 標準化 Key
+                map_df['Original_CustName'] = map_df['Original_CustName'].astype(str).str.strip().str.upper()
+                
+                # 去重 (確保 Excel 裡沒有重複的 Key)
+                map_df = map_df.drop_duplicates(subset=['Original_CustName'])
+                
+                # 合併
+                dim_cust = dim_cust.merge(
+                    map_df[['Original_CustName', 'Parent_Group', 'Category', 'Source']], # 這裡讀取 Category, Source
+                    left_on='CustName',
+                    right_on='Original_CustName',
+                    how='left'
+                )
+                
+                # 填補空值
+                dim_cust['Parent_Group'] = dim_cust['Parent_Group'].fillna(dim_cust['CustName'])
+                dim_cust['Category'] = dim_cust['Category'].fillna('Uncategorized')
+                dim_cust['Source'] = dim_cust['Source'].fillna('Auto-Generated')
+                
+                # 移除多餘欄位
+                dim_cust = dim_cust.drop(columns=['Original_CustName'])
+            else:
+                print("     ⚠️ Excel 缺少 'Original_CustName' 欄位，跳過合併")
+                dim_cust['Parent_Group'] = dim_cust['CustName']
+                dim_cust['Category'] = 'Uncategorized'
+        except Exception as e:
+            print(f"     ⚠️ 讀取 Excel 失敗: {e}")
+            dim_cust['Parent_Group'] = dim_cust['CustName']
+            dim_cust['Category'] = 'Uncategorized'
+    else:
+        print("     ⚠️ 找不到 Mapping Excel，使用預設值")
+        dim_cust['Parent_Group'] = dim_cust['CustName']
+        dim_cust['Category'] = 'Uncategorized'
+
+    # 產生 Key
     dim_cust = dim_cust.reset_index(drop=True)
-    dim_cust['Customer_Key'] = dim_cust.index + 10000 # 從 10000 開始編號
-    
-    # 儲存
+    dim_cust['Customer_Key'] = dim_cust.index + 10000 
     dim_cust.to_parquet(os.path.join(OUTPUT_FOLDER, "Dim_Customer.parquet"), index=False)
     print(f"     ✅ 完成: {len(dim_cust):,} 個唯一客戶")
 
-    # ==========================================
-    # 4. 建立 Dim_Date (時間維度)
-    # ==========================================
-    print("   - 🔨 正在建立 Dim_Date (日曆表)...")
-    # 找出資料中的最小與最大日期
-    min_date = df['POS_ShpDate'].min()
-    max_date = df['POS_ShpDate'].max()
-    
-    # 往前往後多抓一點緩衝 (例如年底要預測明年)
-    start_date = pd.to_datetime(f"{min_date.year}-01-01")
-    end_date = pd.to_datetime(f"{max_date.year}-12-31")
-    
-    # 產生連續日期序列
-    date_range = pd.date_range(start=start_date, end=end_date, freq='D')
-    dim_date = pd.DataFrame({'Date': date_range})
-    
-    # 豐富化時間欄位
-    dim_date['Year'] = dim_date['Date'].dt.year
-    dim_date['Month'] = dim_date['Date'].dt.month
-    dim_date['Month_Name'] = dim_date['Date'].dt.month_name()
-    dim_date['Quarter'] = dim_date['Date'].dt.quarter
-    dim_date['YearQuarter'] = dim_date['Year'].astype(str) + "-Q" + dim_date['Quarter'].astype(str)
-    dim_date['YearMonth'] = dim_date['Date'].dt.strftime('%Y-%m')
-    
-    # 儲存
-    dim_date.to_parquet(os.path.join(OUTPUT_FOLDER, "Dim_Date.parquet"), index=False)
-    print(f"     ✅ 完成: {len(dim_date):,} 天的日曆資料")
+    # 4. Dim_Date
+    print("   - 🔨 建立 Dim_Date...")
+    if 'POS_ShpDate' in df.columns:
+        min_date = df['POS_ShpDate'].min()
+        max_date = df['POS_ShpDate'].max()
+        # 避免空值日期導致報錯
+        if pd.isna(min_date) or pd.isna(max_date):
+             start_date = pd.to_datetime("2023-01-01")
+             end_date = pd.to_datetime("2025-12-31")
+        else:
+             start_date = pd.to_datetime(f"{min_date.year}-01-01")
+             end_date = pd.to_datetime(f"{max_date.year}-12-31")
+             
+        date_range = pd.date_range(start=start_date, end=end_date, freq='D')
+        dim_date = pd.DataFrame({'Date': date_range})
+        dim_date['Year'] = dim_date['Date'].dt.year
+        dim_date['Month'] = dim_date['Date'].dt.month
+        dim_date['Month_Name'] = dim_date['Date'].dt.month_name()
+        dim_date['Quarter'] = dim_date['Date'].dt.quarter
+        dim_date['YearQuarter'] = dim_date['Year'].astype(str) + "-Q" + dim_date['Quarter'].astype(str)
+        dim_date['YearMonth'] = dim_date['Date'].dt.strftime('%Y-%m')
+        dim_date.to_parquet(os.path.join(OUTPUT_FOLDER, "Dim_Date.parquet"), index=False)
 
-    # ==========================================
-    # 5. 建立 Fact_Sales (事實表)
-    # ==========================================
-    print("   - 🔨 正在建立 Fact_Sales (回填 Key 值)...")
+    # 5. Fact_Sales
+    print("   - 🔨 建立 Fact_Sales...")
+    merge_cols = [col for col in ['CustName', 'CustCity', 'CustSt', 'CustZIP'] if col in dim_cust.columns]
+    fact_df = df.merge(dim_cust[merge_cols + ['Customer_Key']], on=merge_cols, how='left')
     
-    # 這裡需要把 Customer_Key Join 回來
-    # 根據我們剛剛定義的唯一鍵 (Name + City + State + ZIP ...)
-    # 為了簡化，我們先用 merge
-    fact_df = df.merge(dim_cust[['CustName', 'CustZIP', 'Customer_Key']], 
-                       on=['CustName', 'CustZIP'], 
-                       how='left')
-    
-    # 選取 Fact Table 需要的欄位 (Key + Metrics)
-    fact_cols = [
-        'POS_ShpDate',      # Date Key
-        'PtNo',             # Product Key
-        'DistName',         # Distributor Key
-        'Customer_Key',     # Customer Key (我們剛產生的)
-        'ResExt',           # Metric: 金額
-        'Qty',              # Metric: 數量
-        'UnitResale',       # Metric: 單價
-        'UnitCst',          # Metric: 成本
-        'CstExt'            # Metric: 總成本
-    ]
-    
-    # 只保留存在的欄位
+    fact_cols = ['POS_ShpDate', 'AdjPtNo', 'PtNo', 'DistName', 'Customer_Key', 'ResExt', 'Qty', 'UnitResale', 'UnitCst', 'CstExt']
     final_fact_cols = [c for c in fact_cols if c in fact_df.columns]
     fact_table = fact_df[final_fact_cols]
     
-    # 儲存
     fact_table.to_parquet(os.path.join(OUTPUT_FOLDER, "Fact_Sales.parquet"), index=False)
-    
     print(f"     ✅ 完成: {len(fact_table):,} 筆交易資料")
-    
-    print("\n" + "="*50)
-    print("🚀 [任務完成] 所有 BI 資料表已輸出至:")
-    print(f"📂 {OUTPUT_FOLDER}")
-    print("="*50)
-    print("請確認以下檔案是否產生：")
-    print("1. Fact_Sales.parquet")
-    print("2. Dim_Product.parquet")
-    print("3. Dim_Customer.parquet")
-    print("4. Dim_Distributor.parquet")
-    print("5. Dim_Date.parquet")
+    print("\n🚀 [ETL 完成] 所有檔案已輸出至 BI_Tables")
 
 if __name__ == "__main__":
     create_star_schema()
