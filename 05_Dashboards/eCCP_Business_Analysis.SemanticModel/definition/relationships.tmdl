@@ -1,0 +1,16 @@
+relationship AutoDetected_442bd380-3b48-46ea-baad-610cca742015
+	fromColumn: Fact_Sales.Customer_Key
+	toColumn: Dim_Customer.Customer_Key
+
+relationship AutoDetected_578a3f1b-f713-427c-a884-cd0abf0f838e
+	fromColumn: Fact_Sales.DistName
+	toColumn: Dim_Distributor.DistName
+
+relationship 562dabb1-703e-0c21-215e-3111ebde2ab0
+	fromColumn: Fact_Sales.POS_ShpDate
+	toColumn: Dim_Date.Date
+
+relationship AutoDetected_f61869d5-c022-4765-bd30-9335b94e0665
+	fromColumn: Fact_Sales.AdjPtNo
+	toColumn: Dim_Product.AdjPtNo
+
