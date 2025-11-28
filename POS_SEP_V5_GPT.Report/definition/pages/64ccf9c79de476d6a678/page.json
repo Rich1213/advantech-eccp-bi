@@ -1,8 +1,0 @@
-{
-  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.0.0/schema.json",
-  "name": "64ccf9c79de476d6a678",
-  "displayName": "地圖",
-  "displayOption": "FitToPage",
-  "height": 720,
-  "width": 1280
-}
